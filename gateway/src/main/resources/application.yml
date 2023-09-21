@@ -1,0 +1,59 @@
+server:
+  address: localhost
+  port: 8000
+spring:
+  cloud:
+    gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+              - "http://localhost:3001"
+              - "http://localhost:3002"
+            allow-credentials: true
+            allowedHeaders: '*'
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+              - PATCH
+      routes:
+        - id: signup-service
+          uri: http://localhost:8080
+          predicates:
+            - Path=/sign-up/**
+        - id: auth-service-post
+          uri: http://localhost:8080
+          predicates:
+            - Path=/auth/**
+            - Method=POST
+        - id: auth-service
+          uri: http://localhost:8080
+          predicates:
+            - Path=/auth/**
+            - Method=PATCH, GET, DELETE
+          filters:
+            - AuthorizationHeaderFilter
+        - id: review-service
+          uri: http://localhost:8081
+          predicates:
+            - Path=/review/**
+        - id: contract-service
+          uri: http://localhost:8082
+          predicates:
+            - Path=/contract/**
+        - id: carinfo-service
+          uri: http://localhost:8083
+          predicates:
+            - Path=/car-info/**
+
+
+token:
+  access_expired_time: 3600000
+  secret_key: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
+  refresh_expired_time: 3600000

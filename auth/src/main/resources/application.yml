@@ -1,0 +1,43 @@
+server:
+  address: localhost
+  port: 8080
+#  tomcat:
+#    accesslog:
+#      enabled: true
+#      directory: /Users/hyun/Desktop/logsystem/logs
+#      suffix: .log
+#      prefix: access_log
+#      file-date-format: yyyy-MM-dd
+      #pattern: %{yyyy-MM-dd HH:mm:ss}t %s %r %{User-Agent}i %{Referer}i %a %b
+
+
+spring:
+  application.name: auth-service
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/cloudchain?serverTimezone=UTC&characterEncoding=UTF-8
+    username: root
+    password:
+
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    hibernate.ddl-auto: update
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    properties.hibernate:
+      show_sql: true
+      format_sql: true
+      use_sql_comments: true
+
+logging:
+  level:
+    org.hibernate: INFO
+    root: INFO
+
+token:
+  secret: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
+  expiration_time: 86400000
+
+
+
