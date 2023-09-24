@@ -33,6 +33,9 @@ public class UserInfoEntity {
     @Column(nullable = false)
     private String detail;
 
+    @Column(nullable = false, length = 1500)
+    private String cert;
+
     @Column(nullable = true)
     private String businessRegistration;
 
@@ -41,7 +44,7 @@ public class UserInfoEntity {
 
 
 
-    public static UserInfoEntity createBuyerAccount(BuyerDto dto) {
+    public static UserInfoEntity createBuyerAccount(BuyerDto dto, String ca) {
 
         return UserInfoEntity.builder()
                 .userid(dto.getUserid())
@@ -49,10 +52,11 @@ public class UserInfoEntity {
                 .type("buyer")
                 .name(dto.getName())
                 .detail(dto.getDetail())
+                .cert(ca)
                 .build();
     }
 
-    public static UserInfoEntity createSellerAccount(SellerDto dto) {
+    public static UserInfoEntity createSellerAccount(SellerDto dto, String ca) {
 
         return UserInfoEntity.builder()
                 .userid(dto.getUserid())
@@ -60,6 +64,7 @@ public class UserInfoEntity {
                 .type("seller")
                 .name(dto.getName())
                 .detail(dto.getDetail())
+                .cert(ca)
                 .businessRegistration(dto.getBusinessRegistration())
                 .build();
     }

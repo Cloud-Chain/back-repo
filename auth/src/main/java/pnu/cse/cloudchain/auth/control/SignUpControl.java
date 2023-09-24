@@ -9,9 +9,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pnu.cse.cloudchain.auth.config.JwtTokenProvider;
 import pnu.cse.cloudchain.auth.dto.request.BuyerDto;
+import pnu.cse.cloudchain.auth.dto.request.CertRequestDto;
 import pnu.cse.cloudchain.auth.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.auth.dto.request.SellerDto;
 import pnu.cse.cloudchain.auth.dto.response.SuccessCodeDto;
+import pnu.cse.cloudchain.auth.entity.UserInfoFeignEntity;
 import pnu.cse.cloudchain.auth.exception.CustomException;
 import pnu.cse.cloudchain.auth.exception.CustomExceptionStatus;
 import pnu.cse.cloudchain.auth.entity.UserInfoEntity;
@@ -25,6 +27,7 @@ public class SignUpControl {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final SignRepository signRepository;
+    private final UserInfoFeignEntity userInfoFeignEntity;
     private static final Logger logger = LoggerFactory.getLogger(SignUpControl.class);
     @Transactional
     public ResponseCodeDto signUpBuyer(BuyerDto dto) {
@@ -37,16 +40,18 @@ public class SignUpControl {
             throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "AUTH-001", "이미 존재하는 아이디입니다.");
         }
         log.info("Valid id");
-        log.error("503-2 -   -  globalExceptionHandler  - TimeOut -");
 
-        log.info("Certificate issuance process start");
-        log.info("TO-DO certificate issuance");
-        log.info("Certificate issuance process done");
+        CertRequestDto certDto = new CertRequestDto();
+        certDto.setOrg("buyer");
+        certDto.setUserID(dto.getUserid());
+        certDto.setPassword(dto.getPassword());
+        String cert = userInfoFeignEntity.enroll(certDto);
+
         ResponseCodeDto<Object> response = new ResponseCodeDto<>();
         SuccessCodeDto successCode = new SuccessCodeDto();
 
         dto.setPassword(passwordEncoder.encode(dto.getPassword()));
-        UserInfoEntity userAccount = UserInfoEntity.createBuyerAccount(dto);
+        UserInfoEntity userAccount = UserInfoEntity.createBuyerAccount(dto, cert);
         signRepository.save(userAccount);
         log.info("Save Account in DB Successfully");
         successCode.setIsSuccess(true);
@@ -65,11 +70,17 @@ public class SignUpControl {
         if (exist != null)
             throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "AUTH-001", "이미 존재하는 아이디입니다.");
 
+        CertRequestDto certDto = new CertRequestDto();
+        certDto.setOrg("seller");
+        certDto.setUserID(dto.getUserid());
+        certDto.setPassword(dto.getPassword());
+        String cert = userInfoFeignEntity.enroll(certDto);
+
         ResponseCodeDto<Object> response = new ResponseCodeDto<>();
         SuccessCodeDto successCode = new SuccessCodeDto();
 
         dto.setPassword(passwordEncoder.encode(dto.getPassword()));
-        UserInfoEntity userAccount = UserInfoEntity.createSellerAccount(dto);
+        UserInfoEntity userAccount = UserInfoEntity.createSellerAccount(dto, cert);
         signRepository.save(userAccount);
 
         successCode.setIsSuccess(true);
