@@ -1,6 +1,8 @@
 package pnu.cse.cloudchain.carinfo.dto;
 
 import lombok.*;
+import pnu.cse.cloudchain.carinfo.dto.request.AssignDto;
+import pnu.cse.cloudchain.carinfo.dto.request.TransactionDetailsDto;
 
 @Getter
 @Setter
@@ -8,19 +10,13 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CarInfoDto {
-    private String model;
+    private Integer id;
 
-    private String period;
+    private String uploadDate;
 
-    private String carNumber;
+    private AssignDto assignor;
 
-    private Integer mileage;
+    private AssignDto assignee;
 
-    private Integer price;
-
-    private String seller;
-
-    private String contractState;
-
-    private Boolean inspectState;
+    private TransactionDetailsDto transactionDetails;
 }

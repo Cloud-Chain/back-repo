@@ -2,15 +2,18 @@ package pnu.cse.cloudchain.carinfo.control;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pnu.cse.cloudchain.carinfo.dto.CarInfoDto;
+import pnu.cse.cloudchain.carinfo.dto.InspectDto;
 import pnu.cse.cloudchain.carinfo.dto.response.ResponseDto;
 import pnu.cse.cloudchain.carinfo.dto.response.SuccessCodeDto;
 import pnu.cse.cloudchain.carinfo.entity.CarInfoEntity;
 import pnu.cse.cloudchain.carinfo.exception.CustomException;
 import pnu.cse.cloudchain.carinfo.exception.CustomExceptionStatus;
 import pnu.cse.cloudchain.carinfo.repository.CarInfoRepository;
+import pnu.cse.cloudchain.carinfo.entity.CarInfoFeignEntity;
 
 import java.util.List;
 
@@ -19,97 +22,67 @@ import java.util.List;
 @Service
 public class CarInfoControl {
     private final CarInfoRepository carInfoRepository;
+    private final CarInfoFeignEntity carInfoFeignEntity;
 
     @Transactional
-    public ResponseDto<SuccessCodeDto> regCar(CarInfoDto dto) {
-        log.info("Checking is valid contract - buyer id : {}, seller id : {}, carnumber : {}", dto.getModel(), dto.getPrice(), dto.getCarNumber());
-        CarInfoEntity existCarInfo = carInfoRepository.findCarInfoEntityByCarNumber(dto.getCarNumber());
-
-        if (existCarInfo != null) {
-            log.error("Invalid contract");
-            throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "CONTRACT-001", "이미 존재하는 차량 거래 입니다.");
-        }
-        log.info("Valid contract");
+    public ResponseDto<SuccessCodeDto> regCar(CarInfoDto dto, String userid, String causer) {
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.set("org","seller");
+        httpHeaders.set("userID",userid);
+        httpHeaders.set("CA-User",causer);
+//        log.info("Checking is valid contract - buyer id : {}, seller id : {}, carnumber : {}");
+        carInfoFeignEntity.regCar(dto, httpHeaders );
+        log.info("Success registry carInfo");
 
         SuccessCodeDto successCode = new SuccessCodeDto();
 
-        CarInfoEntity carInfoEntity = CarInfoEntity.createCarInfo(dto, "carInfo");
-        carInfoRepository.save(carInfoEntity);
-        log.info("Save Review in DB Successfully");
         successCode.setIsSuccess(true);
         successCode.setCode("1000");
-        successCode.setMessage("거래 요청에 성공하였습니다.");
+        successCode.setMessage("차량 등록에 성공하였습니다.");
 
-        return ResponseDto.success("Create Contract Successfully", successCode);
+        return ResponseDto.success("Successful registration of car info", successCode);
     }
 
     @Transactional
-    public ResponseDto<SuccessCodeDto> regInspec(CarInfoDto dto) {
-        log.info("Checking is valid contract - buyer id : {}, seller id : {}, carnumber : {}", dto.getModel(), dto.getPrice(), dto.getCarNumber());
-        CarInfoEntity existCarInfo = carInfoRepository.findCarInfoEntityByCarNumber(dto.getCarNumber());
-
-        if (existCarInfo == null) {
-            log.error("Invalid contract");
-            throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "CONTRACT-001", "이미 존재하는 차량 거래 입니다.");
-        }
-        log.info("Valid contract");
-        if (dto.getInspectState() == true) {
-            existCarInfo.editInspectState(true);
-            carInfoRepository.save(existCarInfo);
-        }
+    public ResponseDto<SuccessCodeDto> regInspec(InspectDto dto) {
+//        log.info("Checking is valid contract - buyer id : {}, seller id : {}, carnumber : {}");
+        carInfoFeignEntity.regInspect(dto);
+        log.info("Success registry InspectInfo");
 
         SuccessCodeDto successCode = new SuccessCodeDto();
 
-        CarInfoEntity carInfoEntity = CarInfoEntity.createCarInfo(dto, "inspecInfo");
-        carInfoRepository.save(carInfoEntity);
-        log.info("Save Review in DB Successfully");
         successCode.setIsSuccess(true);
         successCode.setCode("1000");
-        successCode.setMessage("거래 요청에 성공하였습니다.");
+        successCode.setMessage("검수 결과 등록에 성공하였습니다.");
 
-        return ResponseDto.success("Create Contract Successfully", successCode);
+        return ResponseDto.success("Successful registration of inspection results", successCode);
     }
 
     @Transactional
-    public ResponseDto<List<CarInfoDto>> getCar(CarInfoDto dto) {
-        List<CarInfoDto> exist = null;
-        if (dto.getModel() != null && dto.getCarNumber() != null) {
-//            exist = carInfoRepository.findBySelleridAndCarNumber(dto.getSellerid(), dto.getCarNumber());
-//            log.info("Checking is valid contract - seller id : {}, car number : {}", dto.getSellerid(), dto.getCarNumber());
-        }
-        else if (dto.getPrice() != null && dto.getCarNumber() != null) {
-//            exist = carInfoRepository.findByBuyeridAndCarNumber(dto.getBuyerid(), dto.getCarNumber());
-//            log.info("Checking is valid contract - buyer id : {}, car number : {}", dto.getBuyerid(),  dto.getCarNumber());
-        }
+    public ResponseDto<InspectDto> getInspec(Integer id) {
+        InspectDto exist = carInfoFeignEntity.getInspect(id);
 
-
-
-        if (exist == null) {
-            log.error("Invalid contract");
-            throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "CONTRACT-002", "존재하지 않는 차량 거래 입니다.");
-        }
-
-        log.info("Valid contract");
+        log.info("Valid get Inspect Info");
 
         return ResponseDto.success("Get Contract Successfully", exist);
     }
 
     @Transactional
-    public ResponseDto<List<CarInfoDto>> getInspec(CarInfoDto dto) {
-        List<CarInfoDto> exist = null;
-        if (dto.getCarNumber() != null) {
-            exist = carInfoRepository.findByCarNumber(dto.getCarNumber());
-            log.info("Checking is valid contract -car number : {}", dto.getCarNumber());
-        }
+    public ResponseDto<List<InspectDto>> getAllInspec() {
+        List<InspectDto> exist = carInfoFeignEntity.getAllInspect();
+//        if (dto.getCarNumber() != null) {
+//            exist = carInfoRepository.findByCarNumber(dto.getCarNumber());
+//            log.info("Checking is valid contract -car number : {}", dto.getCarNumber());
+//        }
+//
+//
+//        if (exist == null) {
+//            log.error("Invalid contract");
+//            throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "CONTRACT-002", "존재하지 않는 차량 거래 입니다.");
+//        }
 
+        log.info("Valid get Inspect Info");
 
-        if (exist == null) {
-            log.error("Invalid contract");
-            throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "CONTRACT-002", "존재하지 않는 차량 거래 입니다.");
-        }
-
-        log.info("Valid contract");
-
-        return ResponseDto.success("Get Contract Successfully", exist);
+        return ResponseDto.success("Get Inspect Info Successfully", exist);
     }
 }

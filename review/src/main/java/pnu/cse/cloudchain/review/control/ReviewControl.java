@@ -14,6 +14,7 @@ import pnu.cse.cloudchain.review.entity.ReviewEntity;
 import pnu.cse.cloudchain.review.repository.ContractRepository;
 import pnu.cse.cloudchain.review.repository.ReviewRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -49,14 +50,19 @@ public class ReviewControl {
     @Transactional
     public Response<List<ReviewDto>> getReview(ReviewDto dto) {
         log.info("Checking is valid contract - buyer id : {}, seller id : {}, carnumber : {}", dto.getBuyerid(), dto.getSellerid(), dto.getCarNumber());
-        List<ReviewDto> exist = reviewRepository.findBySelleridAndBuyeridAndCarNumber(dto.getSellerid(), dto.getBuyerid(), dto.getCarNumber());
+        List<ReviewEntity> exist = reviewRepository.findBySelleridAndBuyeridAndCarNumber(dto.getSellerid(), dto.getBuyerid(), dto.getCarNumber());
 
-        if (exist != null) {
+        if (exist == null) {
             log.error("Invalid contract");
             throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "AUTH-001", "이미 존재하는 아이디입니다.");
         }
         log.info("Valid contract");
+        List<ReviewDto> dtos = new ArrayList<>();
+        for (ReviewEntity re: exist) {
+            ReviewDto reDto = ReviewDto.createReview(re);
+            dtos.add(reDto);
+        }
 
-        return Response.success("Get Review Successfully", exist);
+        return Response.success("Get Review Successfully", dtos);
     }
 }

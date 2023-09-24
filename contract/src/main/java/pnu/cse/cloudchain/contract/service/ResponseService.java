@@ -13,7 +13,11 @@ public class ResponseService {
 
         return dto;
     }
-    public static ResponseDto<List<ContractDto>> successDataResponse(ResponseDto<List<ContractDto>> dto){
+    public static ResponseDto<ContractDto> successDataResponse(ResponseDto<ContractDto> dto){
+
+        return dto;
+    }
+    public static ResponseDto<List<ContractDto>> successDatasResponse(ResponseDto<List<ContractDto>> dto){
 
         return dto;
     }

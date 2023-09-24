@@ -45,20 +45,20 @@ public class CarInfoEntity {
     @Column(nullable = true)
     private Boolean inspectState;
 
-    public static CarInfoEntity createCarInfo(CarInfoDto dto, String type) {
-
-        return CarInfoEntity.builder()
-                .model(dto.getModel())
-                .period(dto.getPeriod())
-                .carNumber(dto.getCarNumber())
-                .type(type)
-                .mileage(dto.getMileage())
-                .price(dto.getPrice())
-                .seller(dto.getSeller())
-                .contractState(dto.getContractState())
-                .inspectState(dto.getInspectState())
-                .build();
-    }
+//    public static CarInfoEntity createCarInfo(CarInfoDto dto, String type) {
+//
+//        return CarInfoEntity.builder()
+//                .model(dto.getModel())
+//                .period(dto.getPeriod())
+//                .carNumber(dto.getCarNumber())
+//                .type(type)
+//                .mileage(dto.getMileage())
+//                .price(dto.getPrice())
+//                .seller(dto.getSeller())
+//                .contractState(dto.getContractState())
+//                .inspectState(dto.getInspectState())
+//                .build();
+//    }
     public void editPrice(Integer price) {
         this.price = price;
     }

@@ -42,19 +42,19 @@ public class ContractEntity {
     @Column(nullable = true)
     private String contractPdate;
 
-    public static ContractEntity createContract(ContractDto dto) {
-
-        return ContractEntity.builder()
-                .buyerid(dto.getBuyerid())
-                .sellerid(dto.getSellerid())
-                .carNumber(dto.getCarNumber())
-                .contractDate(dto.getContractDate())
-                .contractAmount(dto.getContractAmount())
-                .contractLocation(dto.getContractLocation())
-                .contractState(dto.getContractState())
-                .contractPdate(dto.getContractPdate())
-                .build();
-    }
+//    public static ContractEntity createContract(ContractDto dto) {
+//
+//        return ContractEntity.builder()
+//                .buyerid(dto.getBuyerid())
+//                .sellerid(dto.getSellerid())
+//                .carNumber(dto.getCarNumber())
+//                .contractDate(dto.getContractDate())
+//                .contractAmount(dto.getContractAmount())
+//                .contractLocation(dto.getContractLocation())
+//                .contractState(dto.getContractState())
+//                .contractPdate(dto.getContractPdate())
+//                .build();
+//    }
     public void editContractDate(String contractDate) {
         this.contractDate = contractDate;
     }

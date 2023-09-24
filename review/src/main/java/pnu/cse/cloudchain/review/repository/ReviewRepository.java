@@ -7,7 +7,7 @@ import pnu.cse.cloudchain.review.entity.ReviewEntity;
 import java.util.List;
 
 public interface ReviewRepository extends JpaRepository<ReviewEntity, String> {
-    List<ReviewDto> findBySelleridAndBuyeridAndCarNumber(String sellerid, String buyerid, String carNumber);
+    List<ReviewEntity> findBySelleridAndBuyeridAndCarNumber(String sellerid, String buyerid, String carNumber);
     List<ReviewDto> findBySelleridAndCarNumber(String sellerid, String carNumber);
     List<ReviewDto> findByBuyeridAndCarNumber(String buyerid, String carNumber);
     List<ReviewDto> findByCarNumber(String carNumber);

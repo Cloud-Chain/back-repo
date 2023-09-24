@@ -3,6 +3,7 @@ package pnu.cse.cloudchain.carinfo.service;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import pnu.cse.cloudchain.carinfo.dto.CarInfoDto;
+import pnu.cse.cloudchain.carinfo.dto.InspectDto;
 import pnu.cse.cloudchain.carinfo.dto.response.ResponseDto;
 import pnu.cse.cloudchain.carinfo.dto.response.SuccessCodeDto;
 
@@ -14,7 +15,11 @@ public class ResponseService {
 
         return dto;
     }
-    public static ResponseDto<List<CarInfoDto>> successDataResponse(ResponseDto<List<CarInfoDto>> dto){
+    public static ResponseDto<InspectDto> successDataResponse(ResponseDto<InspectDto> dto){
+
+        return dto;
+    }
+    public static ResponseDto<List<InspectDto>> successDatasResponse(ResponseDto<List<InspectDto>> dto){
 
         return dto;
     }

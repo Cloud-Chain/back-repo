@@ -1,6 +1,8 @@
 package pnu.cse.cloudchain.contract.dto;
 
 import lombok.*;
+import pnu.cse.cloudchain.contract.dto.request.AssignDto;
+import pnu.cse.cloudchain.contract.dto.request.TransactionDetailsDto;
 
 import javax.persistence.Column;
 
@@ -10,18 +12,13 @@ import javax.persistence.Column;
 @AllArgsConstructor
 @Builder
 public class ContractDto {
-    private String buyerid;
-    private String sellerid;
+    private Integer id;
 
-    private String carNumber;
+    private String uploadDate;
 
-    private String contractDate;
+    private AssignDto assignor;
 
-    private String contractAmount;
+    private AssignDto assignee;
 
-    private String contractLocation;
-
-    private String contractState;
-
-    private String contractPdate;
+    private TransactionDetailsDto transactionDetails;
 }
