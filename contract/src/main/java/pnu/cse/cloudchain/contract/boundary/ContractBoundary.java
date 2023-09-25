@@ -22,7 +22,7 @@ public class ContractBoundary {
 
     @PostMapping("/buy")
     public ResponseDto<SuccessCodeDto> buy(@RequestBody ContractDto dto, @RequestHeader("userid") String userid, @RequestHeader("causer") String causer) {
-
+        log.info("user id = {}  ,  causer = {}", userid, causer);
         return responseService.successResponse(contractControl.buy(dto, userid, causer));
     }
 

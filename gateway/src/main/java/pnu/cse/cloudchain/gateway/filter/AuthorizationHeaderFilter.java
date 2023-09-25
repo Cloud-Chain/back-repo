@@ -44,14 +44,16 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
             log.error("jwt:"+jwt);
 
-//            if(!isValidToken(jwt)) {
-//                log.error("invalid token");
-//            }
-            String id = isValidToken(jwt);
+            Claims claims = getAllClaims(jwt);
+            if(isTokenExpired(claims)) { log.error("check"); }
+
+            String id = (String) claims.get("id");
+            String causer = (String) claims.get("cert");
 //            request.mutate().parameter()
             ServerHttpRequest modifiedRequest = exchange.getRequest()
                     .mutate()
-                    .header("id",id)
+                    .header("userid",id)
+                    .header("causer", causer)
                     .build();
 
 
@@ -61,38 +63,6 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
             return chain.filter(exchange);
         };
-    }
-
-//    public void validateJwtToken(String token) {
-//        try {
-//            String secretKey = env.getProperty("token.secret_key");
-//            secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
-//            log.error("check point for check decode  "+ secretKey);
-//            Claims claims1 = Jwts.parser()
-//                    .setSigningKey(env.getProperty("token.secret_key"))
-//                    .parseClaimsJws(token)
-//                    .getBody();
-//            log.error("check for claim method 1  : "+ claims1.toString());
-//            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
-//            log.error("claim : "+claims.toString());
-//        } catch (SignatureException | MalformedJwtException |
-//                 UnsupportedJwtException | IllegalArgumentException | ExpiredJwtException jwtException) {
-//            log.error("error text : "+jwtException.toString());
-//            jwtException.printStackTrace();
-//            throw jwtException;
-//        }
-//    }
-
-    /**
-     * 토큰 유효여부 확인
-     */
-    public String isValidToken(String token) {
-        log.info("isValidToken token = {}", token);
-        if(isTokenExpired(token)) { log.error("check"); }
-        String id = checkValidToken(token);
-
-//        return (token.equals(checkToken) && !isTokenExpired(token));
-        return id;
     }
 
     /**
@@ -109,33 +79,18 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
     }
 
     /**
-     * Claim 에서 username 가져오기
-     */
-    public String checkValidToken(String token) {
-        Claims claims = getAllClaims(token);
-        log.error("Check claims ={}",claims.toString());
-        String id = (String) claims.get("id");
-        return id;
-//        return Jwts.builder()
-//                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
-//                .setClaims(claims)
-//                .signWith(SignatureAlgorithm.HS256,secretKey)
-//                .compact();
-    }
-
-    /**
      * 토큰 만료기한 가져오기
      */
-    public Date getExpirationDate(String token) {
-        Claims claims = getAllClaims(token);
+    public Date getExpirationDate(Claims claims) {
+
         return claims.getExpiration();
     }
 
     /**
      * 토큰이 만료되었는지
      */
-    private boolean isTokenExpired(String token) {
-        return getExpirationDate(token).before(new Date());
+    private boolean isTokenExpired(Claims claims) {
+        return getExpirationDate(claims).before(new Date());
     }
 
 }

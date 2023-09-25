@@ -11,7 +11,6 @@ import java.util.List;
 public interface ContractFeignEntity {
     @PostMapping("/tx/buy")
     ContractDto buy(@RequestBody ContractDto dto, @RequestHeader HttpHeaders httpHeaders);
-//    @PatchMapping("/tx/{org}/compromise")
     @RequestMapping(value = "/tx/{org}/compromise",
             method = RequestMethod.PATCH)
     ContractDto compromise(@PathVariable("org") String org, @RequestBody ContractDto dto, @RequestHeader HttpHeaders httpHeaders);

@@ -6,7 +6,7 @@ import pnu.cse.cloudchain.auth.entity.UserInfoEntity;
 
 public interface SignRepository extends JpaRepository<UserInfoEntity, String> {
     UserInfoEntity findByUserid(String userid);
-    UserInfoEntity findByName(String name);
+    UserInfoEntity findByEmail(String email);
 //    UserInfo deleteByUserid(String userid);
 //    UserInfo deleteUserInfoByUserid(String userid);
 }

@@ -18,7 +18,7 @@ public class ResponseService {
         return dto;
     }
 
-    public ResponseEntity<ResponseProfileDto> successProfileResponse(ResponseEntity<ResponseProfileDto> dto) {
+    public ResponseProfileDto successProfileResponse(ResponseProfileDto dto) {
 
         return dto;
     }

@@ -21,16 +21,19 @@ public class UserInfoEntity {
     @Column(nullable = false, unique = true)
     private String userid;
 
+    @Column(nullable = false, unique = true)
+    private String email;
+
     @Column(nullable = false)
     private String password;
 
     @Column(nullable = false)
-    private String type;
+    private String org;
 
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = 1000)
     private String detail;
 
     @Column(nullable = false, length = 1500)
@@ -48,8 +51,9 @@ public class UserInfoEntity {
 
         return UserInfoEntity.builder()
                 .userid(dto.getUserid())
+                .email(dto.getEmail())
                 .password(dto.getPassword())
-                .type("buyer")
+                .org("buyer")
                 .name(dto.getName())
                 .detail(dto.getDetail())
                 .cert(ca)
@@ -60,8 +64,9 @@ public class UserInfoEntity {
 
         return UserInfoEntity.builder()
                 .userid(dto.getUserid())
+                .email(dto.getEmail())
                 .password(dto.getPassword())
-                .type("seller")
+                .org("seller")
                 .name(dto.getName())
                 .detail(dto.getDetail())
                 .cert(ca)
@@ -71,6 +76,15 @@ public class UserInfoEntity {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+    public void setCert(String cert) {
+        this.cert = cert;
+    }
+    public void setName(String name) {
+        this.name = name;
+    }
+    public void setDetail(String detail) {
+        this.detail = detail;
     }
 
 }

@@ -1,23 +1,30 @@
 package pnu.cse.cloudchain.auth.control;
 
+import feign.Response;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import pnu.cse.cloudchain.auth.config.JwtTokenProvider;
 import pnu.cse.cloudchain.auth.dto.request.BuyerDto;
 import pnu.cse.cloudchain.auth.dto.request.CertRequestDto;
-import pnu.cse.cloudchain.auth.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.auth.dto.request.SellerDto;
+import pnu.cse.cloudchain.auth.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.auth.dto.response.SuccessCodeDto;
+import pnu.cse.cloudchain.auth.entity.UserInfoEntity;
 import pnu.cse.cloudchain.auth.entity.UserInfoFeignEntity;
 import pnu.cse.cloudchain.auth.exception.CustomException;
 import pnu.cse.cloudchain.auth.exception.CustomExceptionStatus;
-import pnu.cse.cloudchain.auth.entity.UserInfoEntity;
 import pnu.cse.cloudchain.auth.repository.SignRepository;
+import pnu.cse.cloudchain.auth.service.OpenstackSwiftService;
+
+import java.io.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -25,20 +32,46 @@ import pnu.cse.cloudchain.auth.repository.SignRepository;
 public class SignUpControl {
 
     private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider jwtTokenProvider;
     private final SignRepository signRepository;
     private final UserInfoFeignEntity userInfoFeignEntity;
-    private static final Logger logger = LoggerFactory.getLogger(SignUpControl.class);
+    private final OpenstackSwiftService openstackSwiftService;
+
+    @Transactional
+    public String findId(String email) {
+        log.info("Checking is valid request = {}", email);
+        UserInfoEntity account = signRepository.findByEmail(email);
+        return account.getUserid();
+    }
+
+    @Transactional
+    public ResponseCodeDto isDuplicateId(String userid) {
+        UserInfoEntity exist = signRepository.findByUserid(userid);
+
+        if (exist != null)
+            throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "AUTH-001", "이미 존재하는 아이디입니다.");
+
+        ResponseCodeDto<Object> response = new ResponseCodeDto<>();
+        SuccessCodeDto successCode = new SuccessCodeDto();
+
+        successCode.setIsSuccess(true);
+        successCode.setCode("1000");
+        successCode.setMessage("사용 가능한 아이디 입니다.");
+        response.setResult("SUCCESS");
+        response.setMessage("Valid Id");
+        response.setData(successCode);
+        return response;
+    }
+
     @Transactional
     public ResponseCodeDto signUpBuyer(BuyerDto dto) {
         log.info("Checking is valid id = {}", dto.getUserid());
-        UserInfoEntity exist = signRepository.findByUserid(dto.getUserid());
+        UserInfoEntity existId = signRepository.findByUserid(dto.getUserid());
+        UserInfoEntity existEmail = signRepository.findByEmail(dto.getEmail());
 
-        if (exist != null) {
-            log.error("Invalid id AUTH-001");
-//            logger.error("Invalid id");
+        if (existId != null)
             throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "AUTH-001", "이미 존재하는 아이디입니다.");
-        }
+        if (existEmail != null)
+            throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "AUTH-001", "이미 존재하는 아이디입니다.");
         log.info("Valid id");
 
         CertRequestDto certDto = new CertRequestDto();
@@ -65,10 +98,38 @@ public class SignUpControl {
 
     @Transactional
     public ResponseCodeDto signUpSeller(SellerDto dto) {
-        UserInfoEntity exist = signRepository.findByUserid(dto.getUserid());
+        UserInfoEntity existId = signRepository.findByUserid(dto.getUserid());
+        UserInfoEntity existEmail = signRepository.findByEmail(dto.getEmail());
 
-        if (exist != null)
+        if (existId != null)
             throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "AUTH-001", "이미 존재하는 아이디입니다.");
+        if (existEmail != null)
+            throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "AUTH-001", "이미 존재하는 아이디입니다.");
+
+//        JSONParser parser = new JSONParser();
+//        // JSON 파일 읽기
+//        Reader reader = null;
+//        try {
+//            reader = new FileReader("json/openstackKey.json");
+//            JSONObject jsonObject = (JSONObject) parser.parse(reader);
+//
+//            Response key = openstackSwiftService.key(jsonObject);
+//            String swiftKey = key.headers().get("X-Subject-Token").toString();
+//
+//            HttpHeaders httpHeaders = new HttpHeaders();
+//            httpHeaders.set("X-Auth-Token", swiftKey);
+//            openstackSwiftService.upload(dto.getUserid(), httpHeaders);
+//            dto.setBusinessRegistration("http://10.125.70.26:38080/v1/AUTH_fdb3422adae2475cac7558959244c770/usedcar/"+dto.getUserid());
+//        } catch (FileNotFoundException e) {
+//            throw new RuntimeException(e);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        } catch (ParseException e) {
+//            throw new RuntimeException(e);
+//        }
+
+
+
 
         CertRequestDto certDto = new CertRequestDto();
         certDto.setOrg("seller");
@@ -82,6 +143,46 @@ public class SignUpControl {
         dto.setPassword(passwordEncoder.encode(dto.getPassword()));
         UserInfoEntity userAccount = UserInfoEntity.createSellerAccount(dto, cert);
         signRepository.save(userAccount);
+
+        successCode.setIsSuccess(true);
+        successCode.setCode("1000");
+        successCode.setMessage("회원가입에 성공하였습니다.");
+        response.setResult("SUCCESS");
+        response.setMessage("Create Account Successfully");
+        response.setData(successCode);
+        return response;
+    }
+
+    @Transactional
+    public ResponseCodeDto imageUpload(String image, String userid) {
+
+
+        try {
+            ClassPathResource resource = new ClassPathResource("json/openstackKey.json");
+//            Reader reader = new FileReader(resource.getPath());
+//
+//            JSONParser parser = new JSONParser();
+//            JSONObject jsonObject = (JSONObject) parser.parse(reader);
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(new InputStreamReader(resource.getInputStream(), "UTF-8"));
+
+            Response key = openstackSwiftService.key(jsonObject);
+            String swiftKey = key.headers().get("X-Subject-Token").toString();
+
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.set("X-Auth-Token", swiftKey);
+            log.info("Openstack key = {}", swiftKey);
+            Response res = openstackSwiftService.upload(userid, image, httpHeaders);
+            log.info("Check for upload = {}", res.toString());
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        ResponseCodeDto<Object> response = new ResponseCodeDto<>();
+        SuccessCodeDto successCode = new SuccessCodeDto();
 
         successCode.setIsSuccess(true);
         successCode.setCode("1000");

@@ -10,8 +10,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pnu.cse.cloudchain.auth.config.JwtTokenProvider;
+import pnu.cse.cloudchain.auth.dto.request.CertRequestDto;
 import pnu.cse.cloudchain.auth.dto.response.*;
 import pnu.cse.cloudchain.auth.dto.request.SignRequestDto;
+import pnu.cse.cloudchain.auth.entity.UserInfoFeignEntity;
 import pnu.cse.cloudchain.auth.exception.CustomException;
 import pnu.cse.cloudchain.auth.exception.CustomExceptionStatus;
 import pnu.cse.cloudchain.auth.entity.UserInfoEntity;
@@ -25,6 +27,7 @@ public class AuthControl {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
     private final SignRepository signRepository;
+    private final UserInfoFeignEntity userInfoFeignEntity;
 
     @Transactional
     public ResponseEntity<ResponseDataDto> signIn(SignRequestDto request) {
@@ -40,11 +43,10 @@ public class AuthControl {
             throw new CustomException(CustomExceptionStatus.WRONG_PASSWORD, "AUTH-002", "잘못된 비밀번호 입니다.");
         }
         log.info("Valid request");
-        log.error("503-1 - ModifyBoundary  -  ModifyPassword  - ServiceUnavailable -");
 
-        String accessToken = jwtTokenProvider.createToken(account.getUserid(), account.getName());
+        String accessToken = jwtTokenProvider.createToken(account.getUserid(), account.getName(), account.getCert());
         log.info("Created accessToken = {}", accessToken);
-        String refreshToken = jwtTokenProvider.CreateRefreshToken(account.getUserid(), account.getName());
+        String refreshToken = jwtTokenProvider.CreateRefreshToken(account.getUserid(), account.getName(), account.getCert());
         log.info("Created refreshToken = {}", refreshToken);
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
                 // expires in 1 day
@@ -77,7 +79,18 @@ public class AuthControl {
         if (exist == null)
             throw new CustomException(CustomExceptionStatus.ACCOUNT_NOT_FOUND,"AUTH-007", "아이디를 찾을 수 없습니다.");
 
-        exist.setPassword(passwordEncoder.encode(dto.getPassword()));
+        if (!exist.getEmail().equals(dto.getEmail()))
+            throw new CustomException(CustomExceptionStatus.ACCOUNT_NOT_FOUND,"AUTH-007", "아이디를 찾을 수 없습니다.");
+
+        CertRequestDto certDto = new CertRequestDto();
+        certDto.setOrg(exist.getOrg());
+        certDto.setUserID(dto.getId());
+        certDto.setPassword(passwordEncoder.encode(dto.getPassword()));
+        String cert = userInfoFeignEntity.enroll(certDto);
+
+        exist.setPassword(certDto.getPassword());
+        exist.setCert(cert);
+
         signRepository.save(exist);
 
         ResponseCodeDto<Object> response = new ResponseCodeDto<>();
@@ -86,6 +99,39 @@ public class AuthControl {
         successCode.setIsSuccess(true);
         successCode.setCode("1000");
         successCode.setMessage("Edit Password Successfully");
+        response.setResult("SUCCESS");
+        response.setMessage("Request Done Successfully");
+        response.setData(successCode);
+
+        return response;
+    }
+
+    @Transactional
+    public ResponseCodeDto modifyProfile(ProfileDto dto) {
+        UserInfoEntity exist = signRepository.findByUserid(dto.getUserid());
+
+        if (exist == null)
+            throw new CustomException(CustomExceptionStatus.ACCOUNT_NOT_FOUND,"AUTH-007", "아이디를 찾을 수 없습니다.");
+
+        String msg = "Modify ";
+        if(dto.getName() != null && !dto.getName().equals(exist.getName())) {
+            exist.setName(dto.getName());
+            msg += "name ";
+        }
+        if(dto.getDetail() != null && !dto.getDetail().equals(exist.getDetail())) {
+            exist.setDetail(dto.getDetail());
+            msg += "detail ";
+        }
+        msg += "Successfully";
+
+        signRepository.save(exist);
+
+        ResponseCodeDto<Object> response = new ResponseCodeDto<>();
+        SuccessCodeDto successCode = new SuccessCodeDto();
+
+        successCode.setIsSuccess(true);
+        successCode.setCode("1000");
+        successCode.setMessage(msg);
         response.setResult("SUCCESS");
         response.setMessage("Request Done Successfully");
         response.setData(successCode);
@@ -119,38 +165,30 @@ public class AuthControl {
         return response;
     }
 
-//    @Transactional
-//    public ResponseEntity<ResponseProfileDto> getProfile(RequestProfileDto request) {
-//        UserInfo account = signRepository.findByUserid(request.getUserid());
-//
-//        if (account == null)
-//            throw new CustomException(CustomExceptionStatus.USERID_NOT_FOUND, "AUTH-002", "존재하지 않는 아이디 입니다.");
-//        if (!passwordEncoder.matches(request.getPassword(), account.getPassword())) {
-//            throw new CustomException(CustomExceptionStatus.WRONG_PASSWORD, "AUTH-002", "잘못된 비밀번호 입니다.");
-//        }
-//
-//        String refreshToken = jwtTokenProvider.CreateRefreshToken(account.getUserid(), account.getName());
-//        ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
-//                // expires in 1 day
-//                .maxAge(24*60*60)
-//                .secure(true)
-//                .httpOnly(true)
-//                .path("/")
-//                .build();
-//
-//        ResponseDataDto<Object> response = new ResponseDataDto<>();
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.set("refreshToken", cookie.toString());
-//        response.setResult("SUCCESS");
-//        response.setMessage("SignIn Successfully");
-//        SignInResponseDto res = SignInResponseDto.builder()
-//                .id(account.getUserid())
-//                .name(account.getName())
-//                .accessToken(jwtTokenProvider.createToken(account.getUserid(), account.getName()))
-//                .build();
-//        response.setData(res);
-//
-//
-//        return new ResponseEntity<ResponseDataDto>(response, headers, HttpStatus.valueOf(200));
-//    }
+    @Transactional
+    public ResponseProfileDto getProfile(String id) {
+        UserInfoEntity account = signRepository.findByUserid(id);
+
+        if (account == null)
+            throw new CustomException(CustomExceptionStatus.USERID_NOT_FOUND, "AUTH-002", "존재하지 않는 아이디 입니다.");
+
+
+        ResponseProfileDto response = new ResponseProfileDto();
+        ProfileDto profile = new ProfileDto();
+
+        profile.setUserid(account.getUserid());
+        profile.setEmail(account.getEmail());
+        profile.setOrg(account.getOrg());
+        profile.setName(account.getName());
+        profile.setDetail(account.getDetail());
+        profile.setBusinessRegistration(account.getBusinessRegistration());
+        profile.setReportHistory(account.getReportHistory());
+
+        response.setResult("SUCCESS");
+        response.setMessage("Get Profile Successfully");
+        response.setData(profile);
+
+
+        return response;
+    }
 }
