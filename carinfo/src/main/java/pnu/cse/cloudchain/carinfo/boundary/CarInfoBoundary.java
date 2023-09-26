@@ -33,6 +33,11 @@ public class CarInfoBoundary {
 //        log.info("Auth Sign-in api received RequestBody = {}", dto.toString());
         return responseService.successResponse(carInfoControl.regInspec(dto));
     }
+    @PatchMapping("/inspec")
+    public ResponseDto<SuccessCodeDto> resInspec(@RequestBody InspectDto dto) {
+//        log.info("Auth Sign-in api received RequestBody = {}", dto.toString());
+        return responseService.successResponse(carInfoControl.resInspect(dto));
+    }
 
     @GetMapping("/inspec")
     public ResponseDto<InspectDto> getInspec(@RequestParam("id") Integer id) {

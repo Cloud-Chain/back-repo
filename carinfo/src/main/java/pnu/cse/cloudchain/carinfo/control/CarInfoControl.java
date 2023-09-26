@@ -47,6 +47,20 @@ public class CarInfoControl {
     public ResponseDto<SuccessCodeDto> regInspec(InspectDto dto) {
 //        log.info("Checking is valid contract - buyer id : {}, seller id : {}, carnumber : {}");
         carInfoFeignEntity.regInspect(dto);
+        log.info("Success request InspectInfo");
+
+        SuccessCodeDto successCode = new SuccessCodeDto();
+
+        successCode.setIsSuccess(true);
+        successCode.setCode("1000");
+        successCode.setMessage("검수 요청 등록에 성공하였습니다.");
+
+        return ResponseDto.success("Successful registration of inspection request", successCode);
+    }
+    @Transactional
+    public ResponseDto<SuccessCodeDto> resInspect(InspectDto dto) {
+//        log.info("Checking is valid contract - buyer id : {}, seller id : {}, carnumber : {}");
+        carInfoFeignEntity.resultInsepct(dto);
         log.info("Success registry InspectInfo");
 
         SuccessCodeDto successCode = new SuccessCodeDto();

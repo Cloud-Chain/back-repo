@@ -20,4 +20,8 @@ public interface CarInfoFeignEntity {
     InspectDto regInspect(@RequestBody InspectDto dto);
     @PostMapping("/tx/sell")
     CarInfoDto regCar(@RequestBody CarInfoDto dto, @RequestHeader HttpHeaders httpHeaders);
+
+    @RequestMapping(value = "/ix/inspect",
+            method = RequestMethod.PATCH)
+    InspectDto resultInsepct(@RequestBody InspectDto dto);
 }
