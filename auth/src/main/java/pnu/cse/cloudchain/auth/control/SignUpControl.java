@@ -22,6 +22,7 @@ import pnu.cse.cloudchain.auth.entity.UserInfoFeignEntity;
 import pnu.cse.cloudchain.auth.exception.CustomException;
 import pnu.cse.cloudchain.auth.exception.CustomExceptionStatus;
 import pnu.cse.cloudchain.auth.repository.SignRepository;
+import pnu.cse.cloudchain.auth.service.OpenstackKeyService;
 import pnu.cse.cloudchain.auth.service.OpenstackSwiftService;
 
 import java.io.*;
@@ -34,6 +35,7 @@ public class SignUpControl {
     private final PasswordEncoder passwordEncoder;
     private final SignRepository signRepository;
     private final UserInfoFeignEntity userInfoFeignEntity;
+    private final OpenstackKeyService openstackKeyService;
     private final OpenstackSwiftService openstackSwiftService;
 
     @Transactional
@@ -165,7 +167,7 @@ public class SignUpControl {
 //            JSONObject jsonObject = (JSONObject) parser.parse(reader);
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(new InputStreamReader(resource.getInputStream(), "UTF-8"));
 
-            Response key = openstackSwiftService.key(jsonObject);
+            Response key = openstackKeyService.key(jsonObject);
             String swiftKey = key.headers().get("X-Subject-Token").toString();
 
             HttpHeaders httpHeaders = new HttpHeaders();

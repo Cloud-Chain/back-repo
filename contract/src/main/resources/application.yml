@@ -21,6 +21,14 @@ spring:
       format_sql: true
       use_sql_comments: true
 
+feign:
+  hystrix.enabled: true
+  client:
+    config:
+      default:
+        connect-timeout: 30000
+        read-timeout: 30000
+
 logging:
   level:
     org.hibernate: INFO

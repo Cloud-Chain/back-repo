@@ -1,15 +1,20 @@
 package pnu.cse.cloudchain.contract.boundary;
 
+import feign.Body;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import pnu.cse.cloudchain.contract.dto.ContractDto;
+import pnu.cse.cloudchain.contract.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.contract.dto.response.ResponseDto;
 import pnu.cse.cloudchain.contract.dto.response.SuccessCodeDto;
 import pnu.cse.cloudchain.contract.control.ContractControl;
 import pnu.cse.cloudchain.contract.service.ResponseService;
 
 import javax.validation.Valid;
+import java.io.InputStream;
 import java.util.List;
 
 @Slf4j
@@ -50,21 +55,10 @@ public class ContractBoundary {
         return responseService.successDatasResponse(contractControl.getContractVehicle(vehicle));
     }
 
-//    @PostMapping("/contract")
-//    public ResponseDto<SuccessCodeDto> contract(@RequestBody @Valid ContractDto dto) {
-//        log.info("Buyer Sign-up api received RequestBody = {}", dto.toString());
-//        return responseService.successResponse(contractControl.contract(dto));
-//    }
-//
-//    @PatchMapping("/scheduled")
-//    public ResponseDto<SuccessCodeDto> schedulingContract(@RequestBody @Valid ContractDto dto) {
-//        log.info("Buyer Sign-up api received RequestBody = {}", dto.toString());
-//        return responseService.successResponse(contractControl.schedulingContract(dto));
-//    }
-//
-//    @GetMapping("/get-contract")
-//    public ResponseDto<List<ContractDto>> getContract(@RequestBody @Valid ContractDto dto) {
-//        log.info("Buyer Sign-up api received RequestBody = {}", dto.toString());
-//        return responseService.successDataResponse(contractControl.getContract(dto));
-//    }
+    @PutMapping("/image-upload")
+    public ResponseCodeDto imageUpload(@RequestPart("image") MultipartFile input, @RequestHeader("userid") String userid) {
+        log.info("Recevied image upload api");
+        log.info(input.getContentType().toString());
+        return responseService.successResponse(contractControl.imageUpload(input, userid));
+    }
 }

@@ -1,4 +1,4 @@
-package pnu.cse.cloudchain.carinfo.dto.request;
+package pnu.cse.cloudchain.carinfo.dto.response;
 
 import lombok.*;
 
@@ -7,7 +7,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ImagesDto {
+public class ImagesResponseDto {
     private String inside;
     private String outside;
     private String front;

@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import pnu.cse.cloudchain.carinfo.control.CarInfoControl;
 import pnu.cse.cloudchain.carinfo.dto.CarInfoDto;
 import pnu.cse.cloudchain.carinfo.dto.InspectDto;
+import pnu.cse.cloudchain.carinfo.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.carinfo.dto.response.ResponseDto;
 import pnu.cse.cloudchain.carinfo.dto.response.SuccessCodeDto;
 import pnu.cse.cloudchain.carinfo.service.ResponseService;
@@ -36,6 +38,7 @@ public class CarInfoBoundary {
     @PatchMapping("/inspec")
     public ResponseDto<SuccessCodeDto> resInspec(@RequestBody InspectDto dto) {
 //        log.info("Auth Sign-in api received RequestBody = {}", dto.toString());
+//        log.info(testfile2.getContentType());
         return responseService.successResponse(carInfoControl.resInspect(dto));
     }
 
@@ -49,5 +52,12 @@ public class CarInfoBoundary {
     public ResponseDto<List<InspectDto>> getAllInspec() {
 //        log.info("Auth Sign-in api received RequestBody = {}");
         return responseService.successDatasResponse(carInfoControl.getAllInspec());
+    }
+
+    @PutMapping("/image-upload")
+    public ResponseCodeDto imageUpload(@RequestPart("image") MultipartFile input, @RequestHeader("userid") String userid) {
+        log.info("Recevied image upload api");
+        log.info(input.getContentType().toString());
+        return responseService.successResponse(carInfoControl.imageUpload(input, userid));
     }
 }

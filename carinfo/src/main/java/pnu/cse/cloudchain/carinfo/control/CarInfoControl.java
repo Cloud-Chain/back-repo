@@ -1,12 +1,22 @@
 package pnu.cse.cloudchain.carinfo.control;
 
+import feign.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import pnu.cse.cloudchain.carinfo.dto.CarInfoDto;
 import pnu.cse.cloudchain.carinfo.dto.InspectDto;
+import pnu.cse.cloudchain.carinfo.dto.request.ImagesRequestDto;
+import pnu.cse.cloudchain.carinfo.dto.response.ImagesResponseDto;
+import pnu.cse.cloudchain.carinfo.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.carinfo.dto.response.ResponseDto;
 import pnu.cse.cloudchain.carinfo.dto.response.SuccessCodeDto;
 import pnu.cse.cloudchain.carinfo.entity.CarInfoEntity;
@@ -14,14 +24,20 @@ import pnu.cse.cloudchain.carinfo.exception.CustomException;
 import pnu.cse.cloudchain.carinfo.exception.CustomExceptionStatus;
 import pnu.cse.cloudchain.carinfo.repository.CarInfoRepository;
 import pnu.cse.cloudchain.carinfo.entity.CarInfoFeignEntity;
+import pnu.cse.cloudchain.carinfo.service.OpenstackKeyService;
+import pnu.cse.cloudchain.carinfo.service.OpenstackSwiftService;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.List;
 
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class CarInfoControl {
-    private final CarInfoRepository carInfoRepository;
+    private final OpenstackKeyService openstackKeyService;
+    private final OpenstackSwiftService openstackSwiftService;
     private final CarInfoFeignEntity carInfoFeignEntity;
 
     @Transactional
@@ -60,6 +76,10 @@ public class CarInfoControl {
     @Transactional
     public ResponseDto<SuccessCodeDto> resInspect(InspectDto dto) {
 //        log.info("Checking is valid contract - buyer id : {}, seller id : {}, carnumber : {}");
+//        ImagesRequestDto req = new ImagesRequestDto(testfile1, testfile2, testfile3, testfile4, testfile5, testfile6);
+//        dto.setImagesRequest(req);
+        dto.setImages(getImageUrl(dto.getImagesRequest(), dto.getVehicleBasicInfo().getVehicleIdentificationNumber()));
+
         carInfoFeignEntity.resultInsepct(dto);
         log.info("Success registry InspectInfo");
 
@@ -84,19 +104,101 @@ public class CarInfoControl {
     @Transactional
     public ResponseDto<List<InspectDto>> getAllInspec() {
         List<InspectDto> exist = carInfoFeignEntity.getAllInspect();
-//        if (dto.getCarNumber() != null) {
-//            exist = carInfoRepository.findByCarNumber(dto.getCarNumber());
-//            log.info("Checking is valid contract -car number : {}", dto.getCarNumber());
-//        }
-//
-//
-//        if (exist == null) {
-//            log.error("Invalid contract");
-//            throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "CONTRACT-002", "존재하지 않는 차량 거래 입니다.");
-//        }
 
         log.info("Valid get Inspect Info");
 
         return ResponseDto.success("Get Inspect Info Successfully", exist);
+    }
+
+    @Transactional
+    public ImagesResponseDto getImageUrl(ImagesRequestDto dto, String carId) {
+        ImagesResponseDto ret = new ImagesResponseDto();
+        try {
+            ClassPathResource resource = new ClassPathResource("json/openstackKey.json");
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(new InputStreamReader(resource.getInputStream(), "UTF-8"));
+
+            Response key = openstackKeyService.key(jsonObject);
+            String swiftKey = key.headers().get("X-Subject-Token").toString();
+
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.set("X-Auth-Token", swiftKey);
+            httpHeaders.setContentType(MediaType.valueOf(dto.getFront().getContentType()));
+            log.info("Openstack key = {}", swiftKey);
+
+            byte [] byteArr=dto.getInside().getBytes();
+            openstackSwiftService.upload(carId+"_inside", byteArr, httpHeaders);
+            log.info("Check for upload inside");
+
+            byteArr=dto.getOutside().getBytes();
+            openstackSwiftService.upload(carId+"_outside", byteArr, httpHeaders);
+            log.info("Check for upload outside");
+
+            byteArr=dto.getFront().getBytes();
+            openstackSwiftService.upload(carId+"_front", byteArr, httpHeaders);
+            log.info("Check for upload front");
+
+            byteArr=dto.getLeft().getBytes();
+            openstackSwiftService.upload(carId+"_left", byteArr, httpHeaders);
+            log.info("Check for upload left");
+
+            byteArr=dto.getRight().getBytes();
+            openstackSwiftService.upload(carId+"_right", byteArr, httpHeaders);
+            log.info("Check for upload right");
+
+            byteArr=dto.getBack().getBytes();
+            openstackSwiftService.upload(carId+"_back", byteArr, httpHeaders);
+            log.info("Check for upload back");
+
+            ret.setInside(carId+"_inside");
+            ret.setInside(carId+"_outside");
+            ret.setInside(carId+"_front");
+            ret.setInside(carId+"_left");
+            ret.setInside(carId+"_right");
+            ret.setInside(carId+"_back");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+        return ret;
+    }
+
+    @Transactional
+    public ResponseCodeDto imageUpload(MultipartFile input, String userid) {
+        try {
+            ClassPathResource resource = new ClassPathResource("json/openstackKey.json");
+            JSONObject jsonObject = (JSONObject) new JSONParser().parse(new InputStreamReader(resource.getInputStream(), "UTF-8"));
+
+            Response key = openstackKeyService.key(jsonObject);
+            String swiftKey = key.headers().get("X-Subject-Token").toString();
+
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.set("X-Auth-Token", swiftKey);
+            httpHeaders.setContentType(MediaType.valueOf(input.getContentType()));
+            log.info("Openstack key = {}", swiftKey);
+
+            byte [] byteArr=input.getBytes();
+            Response res = openstackSwiftService.upload(userid, byteArr, httpHeaders);
+            log.info("Check for upload = {}", res.toString());
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+
+        ResponseCodeDto<Object> response = new ResponseCodeDto<>();
+        SuccessCodeDto successCode = new SuccessCodeDto();
+
+        successCode.setIsSuccess(true);
+        successCode.setCode("1000");
+        successCode.setMessage("회원가입에 성공하였습니다.");
+        response.setResult("SUCCESS");
+        response.setMessage("Create Account Successfully");
+        response.setData(successCode);
+        return response;
     }
 }
