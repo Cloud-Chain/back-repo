@@ -47,7 +47,7 @@ public class AuthBoundary {
     }
 
     @GetMapping("get-profile")
-    public ResponseProfileDto getProfile(@RequestHeader("userid") String id) {
+    public ResponseProfileDto getProfile(@RequestParam("userid") String id) {
 
         return responseService.successProfileResponse(authControl.getProfile(id));
     }
