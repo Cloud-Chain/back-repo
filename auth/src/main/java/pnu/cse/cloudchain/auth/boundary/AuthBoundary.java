@@ -34,7 +34,7 @@ public class AuthBoundary {
         return responseService.successResponse(authControl.modifyPassword(dto));
     }
 
-    @PatchMapping("/modify-password")
+    @PatchMapping("/modify-profile")
     public ResponseCodeDto modifyProfile(@RequestBody @Valid ProfileDto dto) {
 
         return responseService.successResponse(authControl.modifyProfile(dto));
