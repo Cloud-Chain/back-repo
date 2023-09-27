@@ -3,6 +3,7 @@ package pnu.cse.cloudchain.auth.boundary;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import pnu.cse.cloudchain.auth.dto.request.BuyerDto;
 import pnu.cse.cloudchain.auth.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.auth.dto.request.SellerDto;
@@ -44,7 +45,7 @@ public class SignUpBoundary {
     }
 
     @PutMapping("/image-upload")
-    public ResponseCodeDto imageUpload(@RequestBody String image, @RequestParam("userid") String userid) {
+    public ResponseCodeDto imageUpload(@RequestPart("image") MultipartFile image, @RequestParam("userid") String userid) {
 
         return responseService.successResponse(signUpControl.imageUpload(image, userid));
     }

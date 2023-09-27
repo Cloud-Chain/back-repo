@@ -12,6 +12,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import pnu.cse.cloudchain.auth.dto.request.BuyerDto;
 import pnu.cse.cloudchain.auth.dto.request.CertRequestDto;
 import pnu.cse.cloudchain.auth.dto.request.SellerDto;
@@ -108,30 +109,8 @@ public class SignUpControl {
         if (existEmail != null)
             throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "AUTH-001", "이미 존재하는 아이디입니다.");
 
-//        JSONParser parser = new JSONParser();
-//        // JSON 파일 읽기
-//        Reader reader = null;
-//        try {
-//            reader = new FileReader("json/openstackKey.json");
-//            JSONObject jsonObject = (JSONObject) parser.parse(reader);
-//
-//            Response key = openstackSwiftService.key(jsonObject);
-//            String swiftKey = key.headers().get("X-Subject-Token").toString();
-//
-//            HttpHeaders httpHeaders = new HttpHeaders();
-//            httpHeaders.set("X-Auth-Token", swiftKey);
-//            openstackSwiftService.upload(dto.getUserid(), httpHeaders);
-//            dto.setBusinessRegistration("http://10.125.70.26:38080/v1/AUTH_fdb3422adae2475cac7558959244c770/usedcar/"+dto.getUserid());
-//        } catch (FileNotFoundException e) {
-//            throw new RuntimeException(e);
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        } catch (ParseException e) {
-//            throw new RuntimeException(e);
-//        }
-
-
-
+        imageUpload(dto.getBusinessRegistrationRequest(), dto.getUserid());
+        dto.setBusinessRegistration("http://http://10.125.70.26:38080/v1/AUTH_fdb3422adae2475cac7558959244c770/usedcar/"+dto.getUserid());
 
         CertRequestDto certDto = new CertRequestDto();
         certDto.setOrg("seller");
@@ -156,15 +135,11 @@ public class SignUpControl {
     }
 
     @Transactional
-    public ResponseCodeDto imageUpload(String image, String userid) {
+    public ResponseCodeDto imageUpload(MultipartFile image, String userid) {
 
 
         try {
             ClassPathResource resource = new ClassPathResource("json/openstackKey.json");
-//            Reader reader = new FileReader(resource.getPath());
-//
-//            JSONParser parser = new JSONParser();
-//            JSONObject jsonObject = (JSONObject) parser.parse(reader);
             JSONObject jsonObject = (JSONObject) new JSONParser().parse(new InputStreamReader(resource.getInputStream(), "UTF-8"));
 
             Response key = openstackKeyService.key(jsonObject);
@@ -173,7 +148,9 @@ public class SignUpControl {
             HttpHeaders httpHeaders = new HttpHeaders();
             httpHeaders.set("X-Auth-Token", swiftKey);
             log.info("Openstack key = {}", swiftKey);
-            Response res = openstackSwiftService.upload(userid, image, httpHeaders);
+
+            byte [] byteArr=image.getBytes();
+            Response res = openstackSwiftService.upload(userid, byteArr, httpHeaders);
             log.info("Check for upload = {}", res.toString());
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
