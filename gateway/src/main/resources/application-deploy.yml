@@ -1,6 +1,15 @@
 server:
   port: 8080
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
 spring:
   cloud:
     gateway:
@@ -23,35 +32,35 @@ spring:
               - PATCH
       routes:
         - id: signup-service
-          uri: http://auth-service:80
+          uri: http://auth-service:8080
           predicates:
             - Path=/sign-up/**
         - id: auth-service-post
-          uri: http://auth-service:80
+          uri: http://auth-service:8080
           predicates:
             - Path=/auth/**
             - Method=POST
         - id: auth-service
-          uri: http://auth-service:80
+          uri: http://auth-service:8080
           predicates:
             - Path=/auth/**
             - Method= DELETE, GET, PATCH
           filters:
             - AuthorizationHeaderFilter
         - id: review-service
-          uri: http://review-service:80
+          uri: http://review-service:8080
           predicates:
             - Path=/review/**
           filters:
             - AuthorizationHeaderFilter
         - id: contract-service
-          uri: http://contract-service:80
+          uri: http://contract-service:8080
           predicates:
             - Path=/contract/**
           filters:
             - AuthorizationHeaderFilter
         - id: carinfo-service
-          uri: http://carinfo-service:80
+          uri: http://carinfo-service:8080
           predicates:
             - Path=/car-info/**
           filters:
