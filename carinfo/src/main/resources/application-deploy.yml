@@ -1,0 +1,45 @@
+server:
+  port: 8080
+
+spring:
+  application.name: carinfo-service
+  datasource:
+    driver-class-name : com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://mysql-service:3306/cloudchain?serverTimezone=UTC&characterEncoding=UTF-8
+    username: root
+    password: password
+
+  jpa:
+    show-sql: true
+    generate-ddl: true
+    hibernate.ddl-auto: create
+    database: mysql
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    properties.hibernate:
+      show_sql: true
+      format_sql: true
+      use_sql_comments: true
+
+feign:
+  hystrix.enabled: true
+  client:
+    config:
+      default:
+        connect-timeout: 30000
+        read-timeout: 30000
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    s3:
+      bucket: pnu-studyhub
+    credentials:
+      accessKey: ${STUDYHUB_S3_ACCESS_KEY}
+      secretKey: ${STUDYHUB_S3_SECRET_KEY}
+    stack:
+      auto: false
+
+logging:
+  level:
+    org.hibernate: DEBUG

@@ -79,10 +79,9 @@ public class S3UploadService {
         String fileName = getCurrentTimeAsString()+"_"+userId;
         log.info("Check for imageData in multipartFileUpload = {}", uploadFile.toString());
 
-        return putS3(uploadFile, fileName);
+        return fileUpload(uploadFile, fileName);
     }
-    private String fileUpload(File uploadFile, String dirName){
-        String fileName = dirName + "/" + uploadFile.getName();
+    private String fileUpload(File uploadFile, String fileName){
         String uploadImageUrl = putS3(uploadFile, fileName);
         removeNewFile(uploadFile); //로컬에 생성된 File 삭제 (MultipartFile -> File 전환하며 로컬에 파일 생성됨)
         return uploadImageUrl;

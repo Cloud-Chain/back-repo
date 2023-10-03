@@ -75,7 +75,7 @@ public class S3UploadService {
         String fileName = getCurrentTimeAsString()+"_"+userId;
         log.info("Check for imageData in multipartFileUpload = {}", uploadFile.toString());
 
-        return putS3(uploadFile, fileName);
+        return fileUpload(uploadFile, fileName);
     }
 
     private String fileUpload(File uploadFile, String fileName){
