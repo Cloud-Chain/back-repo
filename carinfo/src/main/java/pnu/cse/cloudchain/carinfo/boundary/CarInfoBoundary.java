@@ -1,5 +1,6 @@
 package pnu.cse.cloudchain.carinfo.boundary;
 
+import com.amazonaws.services.ec2.util.S3UploadPolicy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +13,10 @@ import pnu.cse.cloudchain.carinfo.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.carinfo.dto.response.ResponseDto;
 import pnu.cse.cloudchain.carinfo.dto.response.SuccessCodeDto;
 import pnu.cse.cloudchain.carinfo.service.ResponseService;
+import pnu.cse.cloudchain.carinfo.service.S3UploadService;
 
 import javax.validation.Valid;
+import java.io.IOException;
 import java.util.List;
 
 @Slf4j
@@ -23,6 +26,7 @@ import java.util.List;
 public class CarInfoBoundary {
     private final CarInfoControl carInfoControl;
     private final ResponseService responseService;
+    private final S3UploadService s3UploadService;
 
     @PostMapping("/car")
     public ResponseDto<SuccessCodeDto> regCar(@RequestBody CarInfoDto dto, @RequestHeader("userid") String userid, @RequestHeader("causer") String causer) {
@@ -55,9 +59,9 @@ public class CarInfoBoundary {
     }
 
     @PutMapping("/image-upload")
-    public ResponseCodeDto imageUpload(@RequestPart("image") MultipartFile input, @RequestHeader("userid") String userid) {
+    public String imageUpload(@RequestPart("image") MultipartFile input, @RequestHeader("userid") String userid) throws IOException {
         log.info("Recevied image upload api");
         log.info(input.getContentType().toString());
-        return responseService.successResponse(carInfoControl.imageUpload(input, userid));
+        return s3UploadService.multipartFileUpload(input, userid);
     }
 }

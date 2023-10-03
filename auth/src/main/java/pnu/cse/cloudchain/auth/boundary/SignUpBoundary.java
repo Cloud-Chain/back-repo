@@ -9,8 +9,10 @@ import pnu.cse.cloudchain.auth.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.auth.dto.request.SellerDto;
 import pnu.cse.cloudchain.auth.service.ResponseService;
 import pnu.cse.cloudchain.auth.control.SignUpControl;
+import pnu.cse.cloudchain.auth.service.S3UploadService;
 
 import javax.validation.Valid;
+import java.io.IOException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -19,6 +21,7 @@ import javax.validation.Valid;
 public class SignUpBoundary {
     private final SignUpControl signUpControl;
     private final ResponseService responseService;
+    private final S3UploadService s3UploadService;
 
     @PostMapping("/check-duplicate")
     public ResponseCodeDto isDuplicateId(@RequestParam("userid") String userid) {
@@ -45,8 +48,8 @@ public class SignUpBoundary {
     }
 
     @PutMapping("/image-upload")
-    public ResponseCodeDto imageUpload(@RequestPart("image") MultipartFile image, @RequestParam("userid") String userid) {
+    public String imageUpload(@RequestPart("image") MultipartFile image, @RequestParam("userid") String userid) throws IOException {
 
-        return responseService.successResponse(signUpControl.imageUpload(image, userid));
+        return s3UploadService.multipartFileUpload(image, userid);
     }
 }

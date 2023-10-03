@@ -25,6 +25,7 @@ import pnu.cse.cloudchain.auth.exception.CustomExceptionStatus;
 import pnu.cse.cloudchain.auth.repository.SignRepository;
 import pnu.cse.cloudchain.auth.service.OpenstackKeyService;
 import pnu.cse.cloudchain.auth.service.OpenstackSwiftService;
+import pnu.cse.cloudchain.auth.service.S3UploadService;
 
 import java.io.*;
 
@@ -38,6 +39,7 @@ public class SignUpControl {
     private final UserInfoFeignEntity userInfoFeignEntity;
     private final OpenstackKeyService openstackKeyService;
     private final OpenstackSwiftService openstackSwiftService;
+    private final S3UploadService s3UploadService;
 
     @Transactional
     public String findId(String email) {
@@ -109,8 +111,16 @@ public class SignUpControl {
         if (existEmail != null)
             throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "AUTH-001", "이미 존재하는 아이디입니다.");
 
-        imageUpload(dto.getBusinessRegistrationRequest(), dto.getUserid());
-        dto.setBusinessRegistration("http://http://10.125.70.26:38080/v1/AUTH_fdb3422adae2475cac7558959244c770/usedcar/"+dto.getUserid());
+//        imageUpload(dto.getBusinessRegistrationRequest(), dto.getUserid());
+        String imageUrl = null;
+        try {
+            imageUrl  = s3UploadService.multipartFileUpload(dto.getBusinessRegistrationRequest(), dto.getUserid());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        if (imageUrl == null)
+            throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "AUTH-001", "이미 존재하는 아이디입니다.");
+        dto.setBusinessRegistration(imageUrl);
 
         CertRequestDto certDto = new CertRequestDto();
         certDto.setOrg("seller");
@@ -134,41 +144,41 @@ public class SignUpControl {
         return response;
     }
 
-    @Transactional
-    public ResponseCodeDto imageUpload(MultipartFile image, String userid) {
-
-
-        try {
-            ClassPathResource resource = new ClassPathResource("json/openstackKey.json");
-            JSONObject jsonObject = (JSONObject) new JSONParser().parse(new InputStreamReader(resource.getInputStream(), "UTF-8"));
-
-            Response key = openstackKeyService.key(jsonObject);
-            String swiftKey = key.headers().get("X-Subject-Token").toString();
-
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.set("X-Auth-Token", swiftKey);
-            log.info("Openstack key = {}", swiftKey);
-
-            byte [] byteArr=image.getBytes();
-            Response res = openstackSwiftService.upload(userid, byteArr, httpHeaders);
-            log.info("Check for upload = {}", res.toString());
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
-        }
-
-        ResponseCodeDto<Object> response = new ResponseCodeDto<>();
-        SuccessCodeDto successCode = new SuccessCodeDto();
-
-        successCode.setIsSuccess(true);
-        successCode.setCode("1000");
-        successCode.setMessage("회원가입에 성공하였습니다.");
-        response.setResult("SUCCESS");
-        response.setMessage("Create Account Successfully");
-        response.setData(successCode);
-        return response;
-    }
+//    @Transactional
+//    public ResponseCodeDto imageUpload(MultipartFile image, String userid) {
+//
+//
+//        try {
+//            ClassPathResource resource = new ClassPathResource("json/openstackKey.json");
+//            JSONObject jsonObject = (JSONObject) new JSONParser().parse(new InputStreamReader(resource.getInputStream(), "UTF-8"));
+//
+//            Response key = openstackKeyService.key(jsonObject);
+//            String swiftKey = key.headers().get("X-Subject-Token").toString();
+//
+//            HttpHeaders httpHeaders = new HttpHeaders();
+//            httpHeaders.set("X-Auth-Token", swiftKey);
+//            log.info("Openstack key = {}", swiftKey);
+//
+//            byte [] byteArr=image.getBytes();
+//            Response res = openstackSwiftService.upload(userid, byteArr, httpHeaders);
+//            log.info("Check for upload = {}", res.toString());
+//        } catch (FileNotFoundException e) {
+//            throw new RuntimeException(e);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        } catch (ParseException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//        ResponseCodeDto<Object> response = new ResponseCodeDto<>();
+//        SuccessCodeDto successCode = new SuccessCodeDto();
+//
+//        successCode.setIsSuccess(true);
+//        successCode.setCode("1000");
+//        successCode.setMessage("회원가입에 성공하였습니다.");
+//        response.setResult("SUCCESS");
+//        response.setMessage("Create Account Successfully");
+//        response.setData(successCode);
+//        return response;
+//    }
 }

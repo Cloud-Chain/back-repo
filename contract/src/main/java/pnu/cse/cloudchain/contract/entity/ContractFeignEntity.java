@@ -7,7 +7,7 @@ import pnu.cse.cloudchain.contract.dto.ContractDto;
 
 import java.util.List;
 
-@FeignClient(name = "contract", url = "http://10.125.70.19:38080")
+@FeignClient(name = "contract", url = "http://223.130.161.154:8080")
 public interface ContractFeignEntity {
     @PostMapping("/tx/buy")
     ContractDto buy(@RequestBody ContractDto dto, @RequestHeader HttpHeaders httpHeaders);

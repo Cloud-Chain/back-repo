@@ -10,7 +10,7 @@ import pnu.cse.cloudchain.carinfo.dto.InspectDto;
 
 import java.util.List;
 
-@FeignClient(name = "carinfo", url = "http://10.125.70.19:38080") //, fallbackFactory = CarInfoFeignFallbackFactory.Class)
+@FeignClient(name = "carinfo", url = "http://223.130.161.154:8080") //, fallbackFactory = CarInfoFeignFallbackFactory.Class)
 public interface CarInfoFeignEntity {
     @GetMapping("/ix/")
     List<InspectDto> getAllInspect();

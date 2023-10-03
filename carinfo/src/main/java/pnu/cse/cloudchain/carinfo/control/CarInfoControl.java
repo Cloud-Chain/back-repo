@@ -19,13 +19,10 @@ import pnu.cse.cloudchain.carinfo.dto.response.ImagesResponseDto;
 import pnu.cse.cloudchain.carinfo.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.carinfo.dto.response.ResponseDto;
 import pnu.cse.cloudchain.carinfo.dto.response.SuccessCodeDto;
-import pnu.cse.cloudchain.carinfo.entity.CarInfoEntity;
-import pnu.cse.cloudchain.carinfo.exception.CustomException;
-import pnu.cse.cloudchain.carinfo.exception.CustomExceptionStatus;
-import pnu.cse.cloudchain.carinfo.repository.CarInfoRepository;
 import pnu.cse.cloudchain.carinfo.entity.CarInfoFeignEntity;
 import pnu.cse.cloudchain.carinfo.service.OpenstackKeyService;
 import pnu.cse.cloudchain.carinfo.service.OpenstackSwiftService;
+import pnu.cse.cloudchain.carinfo.service.S3UploadService;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -39,6 +36,7 @@ public class CarInfoControl {
     private final OpenstackKeyService openstackKeyService;
     private final OpenstackSwiftService openstackSwiftService;
     private final CarInfoFeignEntity carInfoFeignEntity;
+    private final S3UploadService s3UploadService;
 
     @Transactional
     public ResponseDto<SuccessCodeDto> regCar(CarInfoDto dto, String userid, String causer) {
@@ -114,56 +112,92 @@ public class CarInfoControl {
     public ImagesResponseDto getImageUrl(ImagesRequestDto dto, String carId) {
         ImagesResponseDto ret = new ImagesResponseDto();
         try {
-            ClassPathResource resource = new ClassPathResource("json/openstackKey.json");
-            JSONObject jsonObject = (JSONObject) new JSONParser().parse(new InputStreamReader(resource.getInputStream(), "UTF-8"));
-
-            Response key = openstackKeyService.key(jsonObject);
-            String swiftKey = key.headers().get("X-Subject-Token").toString();
-
-            HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.set("X-Auth-Token", swiftKey);
-            httpHeaders.setContentType(MediaType.valueOf(dto.getFront().getContentType()));
-            log.info("Openstack key = {}", swiftKey);
-
-            byte [] byteArr=dto.getInside().getBytes();
-            openstackSwiftService.upload(carId+"_inside", byteArr, httpHeaders);
+            String inside = s3UploadService.multipartFileUpload(dto.getInside(), carId+"_inside");
             log.info("Check for upload inside");
 
-            byteArr=dto.getOutside().getBytes();
-            openstackSwiftService.upload(carId+"_outside", byteArr, httpHeaders);
+            String outside = s3UploadService.multipartFileUpload(dto.getOutside(), carId+"_outside");
             log.info("Check for upload outside");
 
-            byteArr=dto.getFront().getBytes();
-            openstackSwiftService.upload(carId+"_front", byteArr, httpHeaders);
+            String front = s3UploadService.multipartFileUpload(dto.getFront(), carId+"_front");
             log.info("Check for upload front");
 
-            byteArr=dto.getLeft().getBytes();
-            openstackSwiftService.upload(carId+"_left", byteArr, httpHeaders);
+            String left = s3UploadService.multipartFileUpload(dto.getLeft(), carId+"_left");
             log.info("Check for upload left");
 
-            byteArr=dto.getRight().getBytes();
-            openstackSwiftService.upload(carId+"_right", byteArr, httpHeaders);
+            String right = s3UploadService.multipartFileUpload(dto.getRight(), carId+"_right");
             log.info("Check for upload right");
 
-            byteArr=dto.getBack().getBytes();
-            openstackSwiftService.upload(carId+"_back", byteArr, httpHeaders);
+            String back = s3UploadService.multipartFileUpload(dto.getBack(), carId+"_back");
             log.info("Check for upload back");
 
-            ret.setInside(carId+"_inside");
-            ret.setInside(carId+"_outside");
-            ret.setInside(carId+"_front");
-            ret.setInside(carId+"_left");
-            ret.setInside(carId+"_right");
-            ret.setInside(carId+"_back");
+            ret.setInside(inside);
+            ret.setOutside(outside);
+            ret.setFront(front);
+            ret.setLeft(left);
+            ret.setRight(right);
+            ret.setBack(back);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        } catch (ParseException e) {
-            throw new RuntimeException(e);
         }
         return ret;
     }
+
+//    @Transactional
+//    public ImagesResponseDto getImageUrl(ImagesRequestDto dto, String carId) {
+//        ImagesResponseDto ret = new ImagesResponseDto();
+//        try {
+//            ClassPathResource resource = new ClassPathResource("json/openstackKey.json");
+//            JSONObject jsonObject = (JSONObject) new JSONParser().parse(new InputStreamReader(resource.getInputStream(), "UTF-8"));
+//
+//            Response key = openstackKeyService.key(jsonObject);
+//            String swiftKey = key.headers().get("X-Subject-Token").toString();
+//
+//            HttpHeaders httpHeaders = new HttpHeaders();
+//            httpHeaders.set("X-Auth-Token", swiftKey);
+//            httpHeaders.setContentType(MediaType.valueOf(dto.getFront().getContentType()));
+//            log.info("Openstack key = {}", swiftKey);
+//
+//            byte [] byteArr=dto.getInside().getBytes();
+//            openstackSwiftService.upload(carId+"_inside", byteArr, httpHeaders);
+//            log.info("Check for upload inside");
+//
+//            byteArr=dto.getOutside().getBytes();
+//            openstackSwiftService.upload(carId+"_outside", byteArr, httpHeaders);
+//            log.info("Check for upload outside");
+//
+//            byteArr=dto.getFront().getBytes();
+//            openstackSwiftService.upload(carId+"_front", byteArr, httpHeaders);
+//            log.info("Check for upload front");
+//
+//            byteArr=dto.getLeft().getBytes();
+//            openstackSwiftService.upload(carId+"_left", byteArr, httpHeaders);
+//            log.info("Check for upload left");
+//
+//            byteArr=dto.getRight().getBytes();
+//            openstackSwiftService.upload(carId+"_right", byteArr, httpHeaders);
+//            log.info("Check for upload right");
+//
+//            byteArr=dto.getBack().getBytes();
+//            openstackSwiftService.upload(carId+"_back", byteArr, httpHeaders);
+//            log.info("Check for upload back");
+//
+//            ret.setInside(carId+"_inside");
+//            ret.setInside(carId+"_outside");
+//            ret.setInside(carId+"_front");
+//            ret.setInside(carId+"_left");
+//            ret.setInside(carId+"_right");
+//            ret.setInside(carId+"_back");
+//        } catch (FileNotFoundException e) {
+//            throw new RuntimeException(e);
+//        } catch (IOException e) {
+//            throw new RuntimeException(e);
+//        } catch (ParseException e) {
+//            throw new RuntimeException(e);
+//        }
+//        return ret;
+//    }
 
     @Transactional
     public ResponseCodeDto imageUpload(MultipartFile input, String userid) {
