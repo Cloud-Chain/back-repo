@@ -27,7 +27,8 @@ ingress:
   hosts:
     - host: "*"
       paths:
-        - /
+        - path: /
+          pathType: Prefix
 
 resources:
   {}
