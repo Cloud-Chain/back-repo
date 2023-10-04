@@ -33,7 +33,7 @@ public class UserInfoEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = true, length = 1000)
     private String detail;
 
     @Column(nullable = false, length = 1500)
