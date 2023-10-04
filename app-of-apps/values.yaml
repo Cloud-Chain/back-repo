@@ -1,3 +1,3 @@
 global:
   namespace: argocd
-  repoURL: https://github.com/cloudchain/back-repo.git
+  repoURL: https://github.com/Cloud-Chain/back-repo.git
