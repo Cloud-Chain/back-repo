@@ -1,0 +1,5 @@
+apiVersion: v2
+name: app-of-apps
+description: A Helm chart to deploy all services via ArgoCD
+version: 0.1.0
+appVersion: "1.16.0"
