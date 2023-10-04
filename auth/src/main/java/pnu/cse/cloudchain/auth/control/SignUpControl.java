@@ -102,7 +102,7 @@ public class SignUpControl {
     }
 
     @Transactional
-    public ResponseCodeDto signUpSeller(SellerDto dto) {
+    public ResponseCodeDto signUpSeller(SellerDto dto, MultipartFile image) {
         UserInfoEntity existId = signRepository.findByUserid(dto.getUserid());
         UserInfoEntity existEmail = signRepository.findByEmail(dto.getEmail());
 
@@ -114,7 +114,7 @@ public class SignUpControl {
 //        imageUpload(dto.getBusinessRegistrationRequest(), dto.getUserid());
         String imageUrl = null;
         try {
-            imageUrl  = s3UploadService.multipartFileUpload(dto.getBusinessRegistrationRequest(), dto.getUserid());
+            imageUrl  = s3UploadService.multipartFileUpload(image, dto.getUserid());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -2,6 +2,7 @@ package pnu.cse.cloudchain.auth.boundary;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pnu.cse.cloudchain.auth.dto.request.BuyerDto;
@@ -35,16 +36,16 @@ public class SignUpBoundary {
         return signUpControl.findId(email);
     }
 
-    @PostMapping("/buyer")
-    public ResponseCodeDto buyer(@RequestBody @Valid BuyerDto dto) {
+    @PostMapping(value="/buyer", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseCodeDto buyer(@RequestPart("dto") BuyerDto dto, @RequestPart(value = "image", required = false) MultipartFile image) {
         log.info("Buyer Sign-up api received RequestBody = {}", dto.toString());
         return responseService.successResponse(signUpControl.signUpBuyer(dto));
     }
 
-    @PostMapping("/seller")
-    public ResponseCodeDto seller(@RequestBody SellerDto dto) {
+    @PostMapping(value="/seller", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseCodeDto seller(@RequestPart("dto") SellerDto dto, @RequestPart("image") MultipartFile image) {
 
-        return responseService.successResponse(signUpControl.signUpSeller(dto));
+        return responseService.successResponse(signUpControl.signUpSeller(dto, image));
     }
 
     @PutMapping("/image-upload")
