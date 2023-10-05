@@ -8,13 +8,13 @@ spring:
         - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
       globalcors:
         cors-configurations:
-          '[/**]':
+          "[/**]":
             allowedOrigins:
               - "http://localhost:3000"
               - "http://localhost:3001"
               - "http://localhost:3002"
             allow-credentials: true
-            allowedHeaders: '*'
+            allowedHeaders: "*"
             allowedMethods:
               - GET
               - POST
@@ -31,7 +31,7 @@ spring:
           uri: http://localhost:8080
           predicates:
             - Path=/auth/**
-            - Method=POST
+            - Method=POST, OPTIONS
         - id: auth-service
           uri: http://localhost:8080
           predicates:
@@ -57,7 +57,6 @@ spring:
             - Path=/car-info/**
           filters:
             - AuthorizationHeaderFilter
-
 
 token:
   access_expired_time: 3600000
