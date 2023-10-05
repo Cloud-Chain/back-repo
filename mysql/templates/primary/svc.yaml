@@ -6,7 +6,7 @@ SPDX-License-Identifier: APACHE-2.0
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "mysql.primary.fullname" . }}
+  name: {{ include "mysql.primary.fullname" . }}-service
   namespace: {{ include "common.names.namespace" . | quote }}
   labels: {{- include "common.labels.standard" ( dict "customLabels" .Values.commonLabels "context" $ ) | nindent 4 }}
     app.kubernetes.io/component: primary
@@ -35,7 +35,7 @@ spec:
   loadBalancerIP: {{ .Values.primary.service.loadBalancerIP }}
   {{- end }}
   ports:
-    - name: mysql-service
+    - name: mysql
       port: {{ .Values.primary.service.ports.mysql }}
       protocol: TCP
       targetPort: mysql
