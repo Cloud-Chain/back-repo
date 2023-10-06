@@ -1,21 +1,17 @@
 package pnu.cse.cloudchain.carinfo.boundary;
 
-import com.amazonaws.services.ec2.util.S3UploadPolicy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pnu.cse.cloudchain.carinfo.control.CarInfoControl;
 import pnu.cse.cloudchain.carinfo.dto.CarInfoDto;
 import pnu.cse.cloudchain.carinfo.dto.InspectDto;
-import pnu.cse.cloudchain.carinfo.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.carinfo.dto.response.ResponseDto;
 import pnu.cse.cloudchain.carinfo.dto.response.SuccessCodeDto;
 import pnu.cse.cloudchain.carinfo.service.ResponseService;
 import pnu.cse.cloudchain.carinfo.service.S3UploadService;
 
-import javax.validation.Valid;
 import java.io.IOException;
 import java.util.List;
 

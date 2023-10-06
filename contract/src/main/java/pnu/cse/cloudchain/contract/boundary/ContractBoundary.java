@@ -7,6 +7,8 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pnu.cse.cloudchain.contract.dto.ContractDto;
+import pnu.cse.cloudchain.contract.dto.request.FilterDto;
+import pnu.cse.cloudchain.contract.dto.response.ContractResponseDto;
 import pnu.cse.cloudchain.contract.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.contract.dto.response.ResponseDto;
 import pnu.cse.cloudchain.contract.dto.response.SuccessCodeDto;
@@ -37,10 +39,10 @@ public class ContractBoundary {
         return responseService.successResponse(contractControl.compromise(dto, userid, causer, org));
     }
 
-    @GetMapping("/get-contract")
-    public ResponseDto<List<ContractDto>> getContract() {
+    @PostMapping("/get-contract")
+    public ResponseDto<List<ContractResponseDto>> getContract(@RequestBody FilterDto dto) {
 
-        return responseService.successDatasResponse(contractControl.getContract());
+        return responseService.successDataResponse(contractControl.getContract(dto));
     }
 
     @GetMapping("/get-contract-user")

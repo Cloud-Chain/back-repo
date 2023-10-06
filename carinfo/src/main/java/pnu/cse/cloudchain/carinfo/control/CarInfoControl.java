@@ -20,6 +20,8 @@ import pnu.cse.cloudchain.carinfo.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.carinfo.dto.response.ResponseDto;
 import pnu.cse.cloudchain.carinfo.dto.response.SuccessCodeDto;
 import pnu.cse.cloudchain.carinfo.entity.CarInfoFeignEntity;
+import pnu.cse.cloudchain.carinfo.exception.CustomException;
+import pnu.cse.cloudchain.carinfo.exception.CustomExceptionStatus;
 import pnu.cse.cloudchain.carinfo.service.OpenstackKeyService;
 import pnu.cse.cloudchain.carinfo.service.OpenstackSwiftService;
 import pnu.cse.cloudchain.carinfo.service.S3UploadService;
@@ -102,8 +104,9 @@ public class CarInfoControl {
     @Transactional
     public ResponseDto<List<InspectDto>> getAllInspec() {
         List<InspectDto> exist = carInfoFeignEntity.getAllInspect();
-
-        log.info("Valid get Inspect Info");
+        log.info("Valid get Inspect Info = {}", exist.toString());
+        if (exist == null || exist.size()==0)
+            throw new CustomException(CustomExceptionStatus.CAR_NOT_FOUND, "404", "차량 정보가 존재하지 않습니다.");
 
         return ResponseDto.success("Get Inspect Info Successfully", exist);
     }

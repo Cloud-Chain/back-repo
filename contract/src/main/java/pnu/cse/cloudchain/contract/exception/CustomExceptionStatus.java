@@ -12,6 +12,7 @@ public enum CustomExceptionStatus {
      *
      */
     USERID_NOT_FOUND("Userid Not Founded"),
+    CAR_NOT_FOUND( "CAR Not Found"),
     WRONG_PASSWORD("Wrong Password"),
     DUPLICATED_EMAIL("Duplicated Email Address"),
     EMPTY_EMAIL("Empty Email"),

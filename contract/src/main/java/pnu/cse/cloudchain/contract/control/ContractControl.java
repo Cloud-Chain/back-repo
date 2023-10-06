@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import pnu.cse.cloudchain.contract.dto.ContractDto;
+import pnu.cse.cloudchain.contract.dto.request.FilterDto;
+import pnu.cse.cloudchain.contract.dto.response.ContractResponseDto;
 import pnu.cse.cloudchain.contract.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.contract.dto.response.ResponseDto;
 import pnu.cse.cloudchain.contract.dto.response.SuccessCodeDto;
@@ -34,6 +36,10 @@ import javax.imageio.stream.ImageInputStream;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -84,12 +90,70 @@ public class ContractControl {
     }
 
     @Transactional
-    public ResponseDto<List<ContractDto>> getContract() {
-
+    public ResponseDto<List<ContractResponseDto>> getContract(FilterDto dto) {
         List<ContractDto> data = contractFeignEntity.getContract();
+        List<ContractResponseDto> retData = new ArrayList<ContractResponseDto>();
         log.info("Valid get Inspect Info");
+        LocalDate date1 =  LocalDate.parse(dto.getPeriodRangeStart(), DateTimeFormatter.ISO_DATE);
+        LocalDate date2 =  LocalDate.parse(dto.getPeriodRangeEnd(), DateTimeFormatter.ISO_DATE);
+        if (data == null || data.size()==0)
+            throw new CustomException(CustomExceptionStatus.CAR_NOT_FOUND, "404", "차량 정보가 존재하지 않습니다.");
+        log.info("{}   {}", date1, date2);
+        if (dto.getFilter()) {
+            for (int i=0; i<data.size(); i++) {
+                Boolean check = true;
+                ContractDto contract = data.get(i);
 
-        return ResponseDto.success("Purchase request successful", data);
+                log.info("check {}  {}  ", i ,contract.getUploadDate().toString());
+
+                if (contract.getTransactionDetails().getTransactionState().equals("SoldOut"))
+                    continue;
+
+                LocalDate date =  LocalDate.parse(contract.getUploadDate().toString().substring(0,10), DateTimeFormatter.ISO_DATE);
+                Boolean result1 = date.isBefore(date1);
+                Boolean result2 = date.isAfter(date2);
+                if (result1 || result2) check = false;
+
+                if (check && dto.getModel() != null && dto.getModel() != "") {
+                    if(!contract.getTransactionDetails().getVehicleModelName().equals(dto.getModel()))
+                        check= false;
+                }
+                if (check && dto.getAssignor() != null && dto.getAssignor() != "") {
+                    if (!contract.getAssignor().getName().equals(dto.getAssignor()))
+                        check = false;
+                }
+                if (check && dto.getPriceFilter()) {
+                    if (contract.getTransactionDetails().getTransactionAmount()<dto.getPriceRangeStart() || contract.getTransactionDetails().getTransactionAmount() > dto.getPriceRangeEnd())
+                        check = false;
+                }
+                if (check && dto.getMileageFilter()) {
+                    if (contract.getTransactionDetails().getMileage()<dto.getMileageRangeStart() || contract.getTransactionDetails().getMileage() > dto.getMileageRangeEnd())
+                        check = false;
+                }
+                if (check) {
+                    ContractResponseDto res = new ContractResponseDto(contract.getId(),
+                        contract.getTransactionDetails().getVehicleModelName(),
+                        contract.getTransactionDetails().getMileage(),
+                        contract.getTransactionDetails().getTransactionAmount(),
+                        contract.getAssignor().getName(),
+                        contract.getUploadDate());
+                    retData.add(res);
+                    log.info("filter result {}", i);
+                }
+            }
+        } else {
+            for (ContractDto contract: data) {
+                ContractResponseDto res = new ContractResponseDto(contract.getId(),
+                        contract.getTransactionDetails().getVehicleModelName(),
+                        contract.getTransactionDetails().getMileage(),
+                        contract.getTransactionDetails().getTransactionAmount(),
+                        contract.getAssignor().getName(),
+                        contract.getUploadDate());
+                retData.add(res);
+            }
+        }
+
+        return ResponseDto.success("Purchase request successful", retData);
     }
 
     @Transactional

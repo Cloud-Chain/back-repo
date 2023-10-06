@@ -17,7 +17,7 @@ public enum CustomExceptionStatus {
     EMPTY_EMAIL("Empty Email"),
     INVALID_EMAIL("Invalid Email"),
     DUPLICATED_USERID("Duplicated Userid"),
-    ACCOUNT_NOT_FOUND( "Account Not Found"),
+    CAR_NOT_FOUND( "CAR Not Found"),
     EMAIL_NOT_FOUND( "Email Not Found"),
     INVALID_PARAM( "Invalid Type Parameter"),
     WRONG_ID("Wrong ID"),
