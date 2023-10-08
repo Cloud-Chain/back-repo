@@ -44,9 +44,9 @@ public class AuthControl {
         }
         log.info("Valid request");
 
-        String accessToken = jwtTokenProvider.createToken(account.getUserid(), account.getName(), account.getCert());
+        String accessToken = jwtTokenProvider.createToken(account.getUserid(), account.getName(), account.getCert(), account.getOrg());
         log.info("Created accessToken = {}", accessToken);
-        String refreshToken = jwtTokenProvider.CreateRefreshToken(account.getUserid(), account.getName(), account.getCert());
+        String refreshToken = jwtTokenProvider.CreateRefreshToken(account.getUserid(), account.getName(), account.getCert(), account.getOrg());
         log.info("Created refreshToken = {}", refreshToken);
         ResponseCookie cookie = ResponseCookie.from("refreshToken", refreshToken)
                 // expires in 1 day

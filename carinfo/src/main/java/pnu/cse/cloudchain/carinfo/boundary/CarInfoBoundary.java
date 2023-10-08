@@ -3,6 +3,7 @@ package pnu.cse.cloudchain.carinfo.boundary;
 import com.amazonaws.services.ec2.util.S3UploadPolicy;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,11 +40,10 @@ public class CarInfoBoundary {
 //        log.info("Auth Sign-in api received RequestBody = {}", dto.toString());
         return responseService.successResponse(carInfoControl.regInspec(dto));
     }
-    @PatchMapping("/inspec")
-    public ResponseDto<SuccessCodeDto> resInspec(@RequestBody InspectDto dto) {
-//        log.info("Auth Sign-in api received RequestBody = {}", dto.toString());
-//        log.info(testfile2.getContentType());
-        return responseService.successResponse(carInfoControl.resInspect(dto));
+    @PatchMapping(value="/inspec", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseDto<SuccessCodeDto> resInspec(@RequestPart("dto") InspectDto dto, @RequestPart("imagesRequest") List<MultipartFile> imagesRequest) {
+
+        return responseService.successResponse(carInfoControl.resInspect(dto, imagesRequest));
     }
 
     @GetMapping("/inspec")
