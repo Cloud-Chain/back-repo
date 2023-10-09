@@ -2,11 +2,7 @@ package pnu.cse.cloudchain.carinfo.boundary;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-<<<<<<< HEAD
-=======
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
->>>>>>> origin
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import pnu.cse.cloudchain.carinfo.control.CarInfoControl;
