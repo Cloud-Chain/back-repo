@@ -18,10 +18,10 @@ public class ContractEntity {
     private long idx;
 
     @Column(nullable = false)
-    private String buyerid;
+    private String buyerName;
 
     @Column(nullable = false)
-    private String sellerid;
+    private String sellerName;
 
     @Column(nullable = false)
     private String carNumber;

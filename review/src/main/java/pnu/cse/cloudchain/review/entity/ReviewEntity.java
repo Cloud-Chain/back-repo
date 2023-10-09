@@ -19,10 +19,13 @@ public class ReviewEntity {
     private long idx;
 
     @Column(nullable = false)
-    private String buyerid;
+    private Integer contractId;
 
     @Column(nullable = false)
-    private String sellerid;
+    private String buyerName;
+
+    @Column(nullable = false)
+    private String sellerName;
 
     @Column(nullable = false, unique = true)
     private String carNumber;
@@ -37,8 +40,9 @@ public class ReviewEntity {
     public static ReviewEntity createReview(ReviewDto dto) {
 
         return ReviewEntity.builder()
-                .buyerid(dto.getBuyerid())
-                .sellerid(dto.getSellerid())
+                .contractId(dto.getContractId())
+                .buyerName(dto.getBuyerName())
+                .sellerName(dto.getSellerName())
                 .carNumber(dto.getCarNumber())
                 .reviewRating(dto.getReviewRating())
                 .reviewStr(dto.getReviewStr())

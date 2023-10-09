@@ -26,8 +26,8 @@ public class ReviewControl {
 
     @Transactional
     public Response<SuccessCodeDto> review(ReviewDto dto) {
-        log.info("Checking is valid contract - buyer id : {}, seller id : {}, carnumber : {}", dto.getBuyerid(), dto.getSellerid(), dto.getCarNumber());
-        ContractEntity existContractEntity = contractRepository.findBySelleridAndBuyeridAndCarNumber(dto.getSellerid(), dto.getBuyerid(), dto.getCarNumber());
+        log.info("Checking is valid contract - buyer id : {}, seller id : {}, carnumber : {}, contractid : {}", dto.getBuyerName(), dto.getSellerName(), dto.getCarNumber(), dto.getContractId());
+        ContractEntity existContractEntity = contractRepository.findBySellerNameAndBuyerNameAndCarNumber(dto.getSellerName(), dto.getBuyerName(), dto.getCarNumber());
 
         if (existContractEntity != null) {
             log.error("Invalid contract");
@@ -48,9 +48,9 @@ public class ReviewControl {
     }
 
     @Transactional
-    public Response<List<ReviewDto>> getReview(ReviewDto dto) {
-        log.info("Checking is valid contract - buyer id : {}, seller id : {}, carnumber : {}", dto.getBuyerid(), dto.getSellerid(), dto.getCarNumber());
-        List<ReviewEntity> exist = reviewRepository.findBySelleridAndBuyeridAndCarNumber(dto.getSellerid(), dto.getBuyerid(), dto.getCarNumber());
+    public Response<List<ReviewDto>> getReview(String sellerName) {
+        log.info("Checking is valid contract -seller id : {}", sellerName);
+        List<ReviewEntity> exist = reviewRepository.findBysellerName(sellerName);
 
         if (exist == null) {
             log.error("Invalid contract");

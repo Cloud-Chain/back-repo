@@ -76,7 +76,7 @@ public class ContractControl {
         httpHeaders.set("org",org);
         httpHeaders.set("userID",userid);
         httpHeaders.set("CA-User",causer);
-
+        log.info(org, userid, causer);
         contractFeignEntity.compromise(org, dto, httpHeaders );
         log.info("Compromise request successful");
 

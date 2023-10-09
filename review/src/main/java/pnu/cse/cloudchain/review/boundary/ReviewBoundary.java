@@ -27,8 +27,7 @@ public class ReviewBoundary {
     }
 
     @GetMapping("/get-review")
-    public Response<List<ReviewDto>> getReview(@RequestBody @Valid ReviewDto dto) {
-        log.info("Buyer Sign-up api received RequestBody = {}", dto.toString());
-        return responseService.successDataResponse(reviewControl.getReview(dto));
+    public Response<List<ReviewDto>> getReview(@RequestParam("name") @Valid String sellerName) {
+        return responseService.successDataResponse(reviewControl.getReview(sellerName));
     }
 }

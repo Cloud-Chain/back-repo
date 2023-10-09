@@ -9,8 +9,9 @@ import pnu.cse.cloudchain.review.entity.ReviewEntity;
 @AllArgsConstructor
 @Builder
 public class ReviewDto {
-    private String buyerid;
-    private String sellerid;
+    private Integer contractId;
+    private String buyerName;
+    private String sellerName;
     private String carNumber;
     private String reviewRating;
     private String reviewStr;
@@ -18,8 +19,9 @@ public class ReviewDto {
     public static ReviewDto createReview(ReviewEntity dto) {
 
         return ReviewDto.builder()
-                .buyerid(dto.getBuyerid())
-                .sellerid(dto.getSellerid())
+                .contractId(dto.getContractId())
+                .buyerName(dto.getBuyerName())
+                .sellerName(dto.getSellerName())
                 .carNumber(dto.getCarNumber())
                 .reviewRating(dto.getReviewRating())
                 .reviewStr(dto.getReviewStr())
