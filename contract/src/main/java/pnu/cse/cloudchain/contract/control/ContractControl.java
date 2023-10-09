@@ -98,7 +98,8 @@ public class ContractControl {
         LocalDate date2 =  LocalDate.parse(dto.getPeriodRangeEnd(), DateTimeFormatter.ISO_DATE);
         if (data == null || data.size()==0)
             throw new CustomException(CustomExceptionStatus.CAR_NOT_FOUND, "404", "차량 정보가 존재하지 않습니다.");
-        log.info("{}   {}", date1, date2);
+        log.info("{}   {}", dto.getMileageFilter(), dto.getPriceFilter());
+        log.info("{}  {}   {}", dto.getStatus(), dto.getPeriodRangeStart(), dto.getPeriodRangeEnd());
         if (dto.getFilter()) {
             for (int i=0; i<data.size(); i++) {
                 Boolean check = true;
@@ -106,29 +107,33 @@ public class ContractControl {
 
                 log.info("check {}  {}  ", i ,contract.getUploadDate().toString());
 
-                if (contract.getTransactionDetails().getTransactionState().equals("SoldOut"))
-                    continue;
+//                if (contract.getTransactionDetails().getTransactionState().equals("SoldOut"))
+//                    continue;
 
                 LocalDate date =  LocalDate.parse(contract.getUploadDate().toString().substring(0,10), DateTimeFormatter.ISO_DATE);
                 Boolean result1 = date.isBefore(date1);
                 Boolean result2 = date.isAfter(date2);
                 if (result1 || result2) check = false;
 
+                if (check && dto.getStatus() != null && dto.getStatus() != "" && !dto.getStatus().equals("All")) {
+                    if (!contract.getTransactionDetails().getTransactionState().equals(dto.getStatus()))
+                    { check = false; log.info("{} status",i);}
+                }
                 if (check && dto.getModel() != null && dto.getModel() != "") {
                     if(!contract.getTransactionDetails().getVehicleModelName().equals(dto.getModel()))
-                        check= false;
+                    { check = false; log.info("{} model",i);}
                 }
                 if (check && dto.getAssignor() != null && dto.getAssignor() != "") {
                     if (!contract.getAssignor().getName().equals(dto.getAssignor()))
-                        check = false;
+                    { check = false; log.info("{} assignor",i);}
                 }
                 if (check && dto.getPriceFilter()) {
                     if (contract.getTransactionDetails().getTransactionAmount()<dto.getPriceRangeStart() || contract.getTransactionDetails().getTransactionAmount() > dto.getPriceRangeEnd())
-                        check = false;
+                    { check = false; log.info("{} price",i);}
                 }
                 if (check && dto.getMileageFilter()) {
                     if (contract.getTransactionDetails().getMileage()<dto.getMileageRangeStart() || contract.getTransactionDetails().getMileage() > dto.getMileageRangeEnd())
-                        check = false;
+                    { check = false; log.info("{} mileage",i);}
                 }
                 if (check) {
                     ContractResponseDto res = new ContractResponseDto(contract.getId(),
@@ -143,6 +148,8 @@ public class ContractControl {
             }
         } else {
             for (ContractDto contract: data) {
+                if (!contract.getTransactionDetails().getTransactionState().equals("SellerRequest"))
+                    continue;
                 ContractResponseDto res = new ContractResponseDto(contract.getId(),
                         contract.getTransactionDetails().getVehicleModelName(),
                         contract.getTransactionDetails().getMileage(),

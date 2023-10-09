@@ -49,11 +49,13 @@ public class AuthorizationHeaderFilter extends AbstractGatewayFilterFactory<Auth
 
             String id = (String) claims.get("id");
             String causer = (String) claims.get("cert");
+            String org = (String) claims.get("org");
 //            request.mutate().parameter()
             ServerHttpRequest modifiedRequest = exchange.getRequest()
                     .mutate()
                     .header("userid",id)
                     .header("causer", causer)
+                    .header("org", org)
                     .build();
 
 

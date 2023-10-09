@@ -15,6 +15,7 @@ public class FilterDto {
     private  Boolean priceFilter;
     private  Boolean mileageFilter;
     private  String model;
+    private  String status;
     private  String assignor;
     private String periodRangeStart;
     private  String periodRangeEnd;

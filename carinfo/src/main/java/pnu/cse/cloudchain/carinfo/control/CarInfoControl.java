@@ -74,11 +74,12 @@ public class CarInfoControl {
         return ResponseDto.success("Successful registration of inspection request", successCode);
     }
     @Transactional
-    public ResponseDto<SuccessCodeDto> resInspect(InspectDto dto) {
+    public ResponseDto<SuccessCodeDto> resInspect(InspectDto dto, List<MultipartFile> imageRequests) {
 //        log.info("Checking is valid contract - buyer id : {}, seller id : {}, carnumber : {}");
 //        ImagesRequestDto req = new ImagesRequestDto(testfile1, testfile2, testfile3, testfile4, testfile5, testfile6);
 //        dto.setImagesRequest(req);
-        dto.setImages(getImageUrl(dto.getImagesRequest(), dto.getVehicleBasicInfo().getVehicleIdentificationNumber()));
+//        dto.setImages(getImageUrl(dto.getImagesRequest(), dto.getVehicleBasicInfo().getVehicleIdentificationNumber()));
+        dto.setImages(getImageUrl(imageRequests, dto.getVehicleBasicInfo().getVehicleIdentificationNumber()));
 
         carInfoFeignEntity.resultInsepct(dto);
         log.info("Success registry InspectInfo");
@@ -131,6 +132,41 @@ public class CarInfoControl {
             log.info("Check for upload right");
 
             String back = s3UploadService.multipartFileUpload(dto.getBack(), carId+"_back");
+            log.info("Check for upload back");
+
+            ret.setInside(inside);
+            ret.setOutside(outside);
+            ret.setFront(front);
+            ret.setLeft(left);
+            ret.setRight(right);
+            ret.setBack(back);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return ret;
+    }
+    @Transactional
+    public ImagesResponseDto getImageUrl(List<MultipartFile> dto, String carId) {
+        ImagesResponseDto ret = new ImagesResponseDto();
+        try {
+            String inside = s3UploadService.multipartFileUpload(dto.get(0), carId+"_inside");
+            log.info("Check for upload inside");
+
+            String outside = s3UploadService.multipartFileUpload(dto.get(1), carId+"_outside");
+            log.info("Check for upload outside");
+
+            String front = s3UploadService.multipartFileUpload(dto.get(2), carId+"_front");
+            log.info("Check for upload front");
+
+            String left = s3UploadService.multipartFileUpload(dto.get(3), carId+"_left");
+            log.info("Check for upload left");
+
+            String right = s3UploadService.multipartFileUpload(dto.get(4), carId+"_right");
+            log.info("Check for upload right");
+
+            String back = s3UploadService.multipartFileUpload(dto.get(5), carId+"_back");
             log.info("Check for upload back");
 
             ret.setInside(inside);

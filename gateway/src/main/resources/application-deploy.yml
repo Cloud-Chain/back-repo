@@ -32,35 +32,35 @@ spring:
               - PATCH
       routes:
         - id: signup-service
-          uri: http://auth-service:8080
+          uri: http://auth:8080
           predicates:
             - Path=/sign-up/**
         - id: auth-service-post
-          uri: http://auth-service:8080
+          uri: http://auth:8080
           predicates:
             - Path=/auth/**
             - Method=POST, OPTIONS
         - id: auth-service
-          uri: http://auth-service:8080
+          uri: http://auth:8080
           predicates:
             - Path=/auth/**
             - Method= DELETE, GET, PATCH
           filters:
             - AuthorizationHeaderFilter
         - id: review-service
-          uri: http://review-service:8080
+          uri: http://review:8080
           predicates:
             - Path=/review/**
           filters:
             - AuthorizationHeaderFilter
         - id: contract-service
-          uri: http://contract-service:8080
+          uri: http://contract:8080
           predicates:
             - Path=/contract/**
           filters:
             - AuthorizationHeaderFilter
         - id: carinfo-service
-          uri: http://carinfo-service:8080
+          uri: http://carinfo:8080
           predicates:
             - Path=/car-info/**
           filters:

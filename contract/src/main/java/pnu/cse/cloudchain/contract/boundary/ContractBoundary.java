@@ -34,7 +34,7 @@ public class ContractBoundary {
     }
 
     @PatchMapping("/compromise")
-    public ResponseDto<SuccessCodeDto> compromise(@RequestBody ContractDto dto, @RequestHeader("userid") String userid, @RequestHeader("causer") String causer, @RequestParam("org") String org) {
+    public ResponseDto<SuccessCodeDto> compromise(@RequestBody ContractDto dto, @RequestHeader("userid") String userid, @RequestHeader("causer") String causer, @RequestHeader("org") String org) {
 
         return responseService.successResponse(contractControl.compromise(dto, userid, causer, org));
     }

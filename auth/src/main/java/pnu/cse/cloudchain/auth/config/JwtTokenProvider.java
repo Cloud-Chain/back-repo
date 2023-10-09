@@ -20,6 +20,7 @@ public class JwtTokenProvider {
     private final static String NAME = "name";
     private final static String CERT = "cert";
     private final static String ID = "id";
+    private final static String ORG = "org";
 
     @Value("${token.secret}")
     private String secretKey;
@@ -30,11 +31,12 @@ public class JwtTokenProvider {
     // 1시간 * 24
     private long refreshTime = 24 * 60 * 60 * 1000L;
 
-    public String createToken(String userid, String name, String cert) {
+    public String createToken(String userid, String name, String cert, String org) {
         Claims claims = Jwts.claims();
         claims.put(ID,userid);
         claims.put(NAME,name);
         claims.put(CERT,cert);
+        claims.put(ORG, org);
 
 //        LocalDate date = LocalDate.now();
 //        Date now = java.sql.Date.valueOf(date);
@@ -54,11 +56,12 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String CreateRefreshToken(String userid, String name, String cert) {
+    public String CreateRefreshToken(String userid, String name, String cert, String org) {
         Claims claims = Jwts.claims();
         claims.put(ID,userid);
         claims.put(NAME,name);
         claims.put(CERT,cert);
+        claims.put(ORG,org);
 
         LocalDateTime localDateTime = LocalDateTime.now();
         Date now = Date.from(localDateTime.atZone(ZoneId.of("Asia/Seoul")).toInstant());
