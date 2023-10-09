@@ -1,6 +1,15 @@
 server:
   port: 8080
 
+management:
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+    probes:
+      enabled: true
+
 spring:
   application.name: auth-service
   datasource:
@@ -50,6 +59,3 @@ logging:
 token:
   secret: VlwEyVBsYt9V7zq57TejMnVUyzblYcfPQye08f7MGVA9XkHa
   expiration_time: 86400000
-
-
-

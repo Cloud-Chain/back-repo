@@ -1,10 +1,19 @@
 server:
   port: 8080
 
+management:
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+    probes:
+      enabled: true
+
 spring:
   application.name: carinfo-service
   datasource:
-    driver-class-name : com.mysql.cj.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://mysql-service:3306/cloudchain?serverTimezone=UTC&characterEncoding=UTF-8
     username: root
     password: password

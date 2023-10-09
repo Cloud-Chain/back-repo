@@ -9,6 +9,13 @@ management:
   endpoint:
     health:
       show-details: always
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+    probes:
+      enabled: true
 
 spring:
   cloud:

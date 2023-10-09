@@ -1,6 +1,15 @@
 server:
   port: 8080
 
+management:
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
+    probes:
+      enabled: true
+
 spring:
   application.name: contract-service
   datasource:
