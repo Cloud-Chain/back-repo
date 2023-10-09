@@ -72,7 +72,7 @@ spring:
           uri: http://carinfo:8080
           predicates:
             - Path=/car-info/**
-            - Method= POST, PATCH, PUT
+            - Method= POST, PATCH, PUT, OPTIONS
           filters:
             - AuthorizationHeaderFilter
 

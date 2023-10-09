@@ -64,7 +64,7 @@ spring:
           uri: http://localhost:8083
           predicates:
             - Path=/car-info/**
-            - Method= POST, PATCH, PUT
+            - Method= POST, PATCH, PUT, OPTIONS
           filters:
             - AuthorizationHeaderFilter
 
