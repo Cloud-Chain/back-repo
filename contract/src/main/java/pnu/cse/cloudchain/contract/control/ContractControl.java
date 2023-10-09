@@ -141,7 +141,12 @@ public class ContractControl {
                         contract.getTransactionDetails().getMileage(),
                         contract.getTransactionDetails().getTransactionAmount(),
                         contract.getAssignor().getName(),
-                        contract.getUploadDate());
+                        contract.getUploadDate(),
+                        contract.getTransactionDetails().getVehicleRegistrationNumber(),
+                        contract.getAssignor().getPhoneNumber(),
+                        contract.getAssignor().getAddress(),
+                        contract.getTransactionDetails().getTransactionState(),
+                        contract.getTransactionDetails().getVehicleIdentificationNumber());
                     retData.add(res);
                     log.info("filter result {}", i);
                 }
@@ -155,7 +160,12 @@ public class ContractControl {
                         contract.getTransactionDetails().getMileage(),
                         contract.getTransactionDetails().getTransactionAmount(),
                         contract.getAssignor().getName(),
-                        contract.getUploadDate());
+                        contract.getUploadDate(),
+                        contract.getTransactionDetails().getVehicleRegistrationNumber(),
+                        contract.getAssignor().getPhoneNumber(),
+                        contract.getAssignor().getAddress(),
+                        contract.getTransactionDetails().getTransactionState(),
+                        contract.getTransactionDetails().getVehicleIdentificationNumber());
                 retData.add(res);
             }
         }

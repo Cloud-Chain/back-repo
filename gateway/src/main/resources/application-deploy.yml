@@ -53,16 +53,26 @@ spring:
             - Path=/review/**
           filters:
             - AuthorizationHeaderFilter
+        - id: contract-service-get-contract
+          uri: http://contract:8080
+          predicates:
+            - Path=/contract/get-contract
         - id: contract-service
           uri: http://contract:8080
           predicates:
             - Path=/contract/**
           filters:
             - AuthorizationHeaderFilter
+        - id: carinfo-service-get
+          uri: http://carinfo:8080
+          predicates:
+            - Path=/car-info/**
+            - Method= GET
         - id: carinfo-service
           uri: http://carinfo:8080
           predicates:
             - Path=/car-info/**
+            - Method= POST, PATCH, PUT
           filters:
             - AuthorizationHeaderFilter
 

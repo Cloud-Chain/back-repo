@@ -65,6 +65,7 @@ public class AuthControl {
                 .id(account.getUserid())
                 .name(account.getName())
                 .accessToken(accessToken)
+                .org(account.getOrg())
                 .build();
         response.setData(res);
 

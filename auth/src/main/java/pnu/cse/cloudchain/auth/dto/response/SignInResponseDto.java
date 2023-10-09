@@ -13,6 +13,8 @@ public class SignInResponseDto {
 
     private String name;
 
+    private String org;
+
     private String accessToken;
 
 }

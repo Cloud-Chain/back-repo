@@ -14,4 +14,10 @@ public class ContractResponseDto {
     private Integer price;
     private String seller;
     private String period;
+//    private String uploadDate;
+    private String residentRegistrationNumber;
+    private String phoneNumber;
+    private String address;
+    private String transactionState;
+    private String vehicleIdentificationNumber;
 }

@@ -45,16 +45,26 @@ spring:
             - Path=/review/**
           filters:
             - AuthorizationHeaderFilter
+        - id: contract-service-get-contract
+          uri: http://localhost:8082
+          predicates:
+            - Path=/contract/get-contract
         - id: contract-service
           uri: http://localhost:8082
           predicates:
             - Path=/contract/**
           filters:
             - AuthorizationHeaderFilter
+        - id: carinfo-service-get
+          uri: http://localhost:8083
+          predicates:
+            - Path=/car-info/**
+            - Method= GET
         - id: carinfo-service
           uri: http://localhost:8083
           predicates:
             - Path=/car-info/**
+            - Method= POST, PATCH, PUT
           filters:
             - AuthorizationHeaderFilter
 
