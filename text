@@ -1,0 +1,18 @@
+ubuntu@k8s-cluster3-bastion:~$ kubectl get pods -A
+NAMESPACE     NAME                                           READY   STATUS    RESTARTS      AGE
+kube-system   cilium-6zcpw                                   1/1     Running   0             26h
+kube-system   cilium-operator-7889fd778f-8ffl7               1/1     Running   1 (26h ago)   26h
+kube-system   cilium-operator-7889fd778f-z4k88               1/1     Running   1 (26h ago)   26h
+kube-system   cilium-wmx4k                                   1/1     Running   0             26h
+kube-system   coredns-645b46f4b6-6qg5r                       1/1     Running   0             22h
+kube-system   coredns-645b46f4b6-wqjll                       1/1     Running   0             22h
+kube-system   dns-autoscaler-659b8c48cb-bpndz                1/1     Running   0             26h
+kube-system   kube-apiserver-k8s-cluster3-master1            1/1     Running   2             26h
+kube-system   kube-controller-manager-k8s-cluster3-master1   1/1     Running   5             26h
+kube-system   kube-proxy-5strg                               1/1     Running   0             26h
+kube-system   kube-proxy-nk6q9                               1/1     Running   0             26h
+kube-system   kube-scheduler-k8s-cluster3-master1            1/1     Running   3 (26h ago)   26h
+kube-system   nginx-proxy-k8s-cluster3-worker1               1/1     Running   0             26h
+kube-system   nodelocaldns-rhvbv                             1/1     Running   0             26h
+kube-system   nodelocaldns-vwmfk                             1/1     Running   0             26h
+kube-system   openstack-cloud-controller-manager-5s4j4       1/1     Running   3 (26h ago)   26h
