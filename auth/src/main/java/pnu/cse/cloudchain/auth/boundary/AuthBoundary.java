@@ -2,8 +2,11 @@ package pnu.cse.cloudchain.auth.boundary;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import pnu.cse.cloudchain.auth.dto.request.BuyerDto;
 import pnu.cse.cloudchain.auth.dto.response.ProfileDto;
 import pnu.cse.cloudchain.auth.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.auth.dto.response.ResponseDataDto;
@@ -34,10 +37,10 @@ public class AuthBoundary {
         return responseService.successResponse(authControl.modifyPassword(dto));
     }
 
-    @PatchMapping("/modify-profile")
-    public ResponseCodeDto modifyProfile(@RequestBody @Valid ProfileDto dto) {
+    @PatchMapping(value="/modify-profile", consumes = { MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseCodeDto modifyProfile(@RequestPart("dto") ProfileDto dto, @RequestPart(value = "image", required = false) MultipartFile image) {
 
-        return responseService.successResponse(authControl.modifyProfile(dto));
+        return responseService.successResponse(authControl.modifyProfile(dto, image));
     }
 
     @DeleteMapping("delete")

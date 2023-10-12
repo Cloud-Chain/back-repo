@@ -21,6 +21,7 @@ public class ProfileDto {
     private String detail;
 
     private String businessRegistration;
+    private String profileImage;
 
     private String reportHistory;
 }
