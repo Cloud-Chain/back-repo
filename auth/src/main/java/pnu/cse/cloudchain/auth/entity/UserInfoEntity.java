@@ -30,7 +30,7 @@ public class UserInfoEntity {
     @Column(nullable = false)
     private String org;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(nullable = true, length = 1000)
@@ -41,6 +41,9 @@ public class UserInfoEntity {
 
     @Column(nullable = true)
     private String businessRegistration;
+
+    @Column(nullable = true)
+    private String profileImage;
 
     @Column(nullable = true)
     private String reportHistory;
@@ -56,6 +59,7 @@ public class UserInfoEntity {
                 .org("buyer")
                 .name(dto.getName())
                 .detail(dto.getDetail())
+                .profileImage("https://pnu-studyhub.s3.ap-northeast-2.amazonaws.com/2023-10-12_defaultUserImg")
                 .cert(ca)
                 .build();
     }
@@ -70,6 +74,7 @@ public class UserInfoEntity {
                 .name(dto.getName())
                 .detail(dto.getDetail())
                 .cert(ca)
+                .profileImage("https://pnu-studyhub.s3.ap-northeast-2.amazonaws.com/2023-10-12_defaultUserImg")
                 .businessRegistration(dto.getBusinessRegistration())
                 .build();
     }
@@ -86,5 +91,7 @@ public class UserInfoEntity {
     public void setDetail(String detail) {
         this.detail = detail;
     }
-
+    public void setProfileImage(String imageUrl) {
+        this.profileImage = imageUrl;
+    }
 }

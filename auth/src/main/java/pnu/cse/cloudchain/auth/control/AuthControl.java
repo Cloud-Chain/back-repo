@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import pnu.cse.cloudchain.auth.config.JwtTokenProvider;
 import pnu.cse.cloudchain.auth.dto.request.CertRequestDto;
 import pnu.cse.cloudchain.auth.dto.response.*;
@@ -18,6 +19,9 @@ import pnu.cse.cloudchain.auth.exception.CustomException;
 import pnu.cse.cloudchain.auth.exception.CustomExceptionStatus;
 import pnu.cse.cloudchain.auth.entity.UserInfoEntity;
 import pnu.cse.cloudchain.auth.repository.SignRepository;
+import pnu.cse.cloudchain.auth.service.S3UploadService;
+
+import java.io.IOException;
 
 @Slf4j
 @Transactional(readOnly = true)
@@ -28,6 +32,7 @@ public class AuthControl {
     private final JwtTokenProvider jwtTokenProvider;
     private final SignRepository signRepository;
     private final UserInfoFeignEntity userInfoFeignEntity;
+    private final S3UploadService s3UploadService;
 
     @Transactional
     public ResponseEntity<ResponseDataDto> signIn(SignRequestDto request) {
@@ -108,7 +113,7 @@ public class AuthControl {
     }
 
     @Transactional
-    public ResponseCodeDto modifyProfile(ProfileDto dto) {
+    public ResponseCodeDto modifyProfile(ProfileDto dto, MultipartFile image) {
         UserInfoEntity exist = signRepository.findByUserid(dto.getUserid());
 
         if (exist == null)
@@ -122,6 +127,18 @@ public class AuthControl {
         if(dto.getDetail() != null && !dto.getDetail().equals(exist.getDetail())) {
             exist.setDetail(dto.getDetail());
             msg += "detail ";
+        }
+        if(image != null && !dto.getProfileImage().equals(exist.getProfileImage())) {
+            String imageUrl = null;
+            try {
+                imageUrl  = s3UploadService.multipartFileUpload(image, dto.getUserid()+"_profile");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            if (imageUrl == null)
+                throw new CustomException(CustomExceptionStatus.DUPLICATED_USERID, "AUTH-001", "이미 존재하는 아이디입니다.");
+            exist.setProfileImage(imageUrl);
+            msg += "profileImage ";
         }
         msg += "Successfully";
 
@@ -182,6 +199,7 @@ public class AuthControl {
         profile.setOrg(account.getOrg());
         profile.setName(account.getName());
         profile.setDetail(account.getDetail());
+        profile.setProfileImage(account.getProfileImage());
         profile.setBusinessRegistration(account.getBusinessRegistration());
         profile.setReportHistory(account.getReportHistory());
 
