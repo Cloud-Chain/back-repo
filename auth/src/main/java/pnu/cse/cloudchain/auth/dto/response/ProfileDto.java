@@ -17,6 +17,7 @@ public class ProfileDto {
     private String org;
 
     private String name;
+    private String phoneNumber;
 
     private String detail;
 

@@ -44,6 +44,8 @@ public class UserInfoEntity {
 
     @Column(nullable = true)
     private String profileImage;
+    @Column(nullable = true)
+    private String phoneNumber;
 
     @Column(nullable = true)
     private String reportHistory;
@@ -60,6 +62,7 @@ public class UserInfoEntity {
                 .name(dto.getName())
                 .detail(dto.getDetail())
                 .profileImage("https://pnu-studyhub.s3.ap-northeast-2.amazonaws.com/2023-10-12_defaultUserImg")
+                .phoneNumber("")
                 .cert(ca)
                 .build();
     }
@@ -74,6 +77,7 @@ public class UserInfoEntity {
                 .name(dto.getName())
                 .detail(dto.getDetail())
                 .cert(ca)
+                .phoneNumber("")
                 .profileImage("https://pnu-studyhub.s3.ap-northeast-2.amazonaws.com/2023-10-12_defaultUserImg")
                 .businessRegistration(dto.getBusinessRegistration())
                 .build();
@@ -93,5 +97,8 @@ public class UserInfoEntity {
     }
     public void setProfileImage(String imageUrl) {
         this.profileImage = imageUrl;
+    }
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
     }
 }

@@ -115,20 +115,20 @@ public class AuthControl {
     @Transactional
     public ResponseCodeDto modifyProfile(ProfileDto dto, MultipartFile image) {
         UserInfoEntity exist = signRepository.findByUserid(dto.getUserid());
-
+        log.info(dto.getUserid());
         if (exist == null)
             throw new CustomException(CustomExceptionStatus.ACCOUNT_NOT_FOUND,"AUTH-007", "아이디를 찾을 수 없습니다.");
 
         String msg = "Modify ";
-        if(dto.getName() != null && !dto.getName().equals(exist.getName())) {
-            exist.setName(dto.getName());
-            msg += "name ";
-        }
-        if(dto.getDetail() != null && !dto.getDetail().equals(exist.getDetail())) {
+        if(dto.getDetail() != null &&!dto.getDetail().equals("") && !dto.getDetail().equals(exist.getDetail())) {
             exist.setDetail(dto.getDetail());
             msg += "detail ";
         }
-        if(image != null && !dto.getProfileImage().equals(exist.getProfileImage())) {
+        if(dto.getPhoneNumber() != null && !dto.getPhoneNumber().equals("") && !dto.getPhoneNumber().equals(exist.getPhoneNumber())) {
+            exist.setPhoneNumber(dto.getPhoneNumber());
+            msg += "phoneNumber ";
+        }
+        if(image != null ) {
             String imageUrl = null;
             try {
                 imageUrl  = s3UploadService.multipartFileUpload(image, dto.getUserid()+"_profile");
@@ -199,6 +199,7 @@ public class AuthControl {
         profile.setOrg(account.getOrg());
         profile.setName(account.getName());
         profile.setDetail(account.getDetail());
+        profile.setPhoneNumber(account.getPhoneNumber());
         profile.setProfileImage(account.getProfileImage());
         profile.setBusinessRegistration(account.getBusinessRegistration());
         profile.setReportHistory(account.getReportHistory());
@@ -207,6 +208,24 @@ public class AuthControl {
         response.setMessage("Get Profile Successfully");
         response.setData(profile);
 
+
+        return response;
+    }
+    @Transactional
+    public ResponseProfileDto getProfileByName(String username) {
+        UserInfoEntity account = signRepository.findByName(username);
+
+        if (account == null)
+            throw new CustomException(CustomExceptionStatus.USERID_NOT_FOUND, "AUTH-002", "존재하지 않는 아이디 입니다.");
+        log.info("name {}, image {}", account.getName(), account.getProfileImage());
+        ResponseProfileDto response = new ResponseProfileDto();
+        ProfileDto profile = new ProfileDto();
+
+        profile.setProfileImage(account.getProfileImage());
+
+        response.setResult("SUCCESS");
+        response.setMessage("Get Profile Image Successfully");
+        response.setData(profile);
 
         return response;
     }
