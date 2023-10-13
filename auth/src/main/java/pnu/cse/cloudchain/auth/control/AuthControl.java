@@ -130,7 +130,7 @@ public class AuthControl {
             exist.setPhoneNumber(dto.getPhoneNumber());
             msg += "phoneNumber ";
         }
-        if(image != null ) {
+        if(image != null &&!dto.getProfileImage().equals("") && !dto.getProfileImage().equals(exist.getDetail())) {
             log.info("Get image {}",image.getContentType());
             String imageUrl = null;
             try {
