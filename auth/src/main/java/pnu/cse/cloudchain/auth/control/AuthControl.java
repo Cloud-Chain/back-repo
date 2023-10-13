@@ -121,14 +121,17 @@ public class AuthControl {
 
         String msg = "Modify ";
         if(dto.getDetail() != null &&!dto.getDetail().equals("") && !dto.getDetail().equals(exist.getDetail())) {
+            log.info("Get Detail {}",dto.getDetail());
             exist.setDetail(dto.getDetail());
             msg += "detail ";
         }
         if(dto.getPhoneNumber() != null && !dto.getPhoneNumber().equals("") && !dto.getPhoneNumber().equals(exist.getPhoneNumber())) {
+            log.info("Get Phone Number {}",dto.getPhoneNumber());
             exist.setPhoneNumber(dto.getPhoneNumber());
             msg += "phoneNumber ";
         }
         if(image != null ) {
+            log.info("Get image {}",image.getContentType());
             String imageUrl = null;
             try {
                 imageUrl  = s3UploadService.multipartFileUpload(image, dto.getUserid()+"_profile");
