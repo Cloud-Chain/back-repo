@@ -21,4 +21,15 @@ public class ContractDto {
     private AssignDto assignee;
 
     private TransactionDetailsDto transactionDetails;
+
+    @Override
+    public String toString() {
+        String ret = "\nContract Data "
+                    +"\n - Id - "+id.toString()
+                    +"\n - UploadDate - "+uploadDate
+                    +"\n - Assignor - "+assignor.getString()
+                    +"\n - Assignee - "+assignee.getString()
+                    +"\n - TransactionDetails - "+transactionDetails.getString();
+        return ret;
+    }
 }

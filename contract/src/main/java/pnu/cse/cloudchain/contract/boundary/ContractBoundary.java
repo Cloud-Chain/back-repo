@@ -41,6 +41,16 @@ public class ContractBoundary {
 
     @PostMapping("/get-contract")
     public ResponseDto<List<ContractResponseDto>> getContract(@RequestBody FilterDto dto) {
+        log.info("Received Get-Contract Api Contract Boundary.");
+        log.info("In FilterDto - 필터링 여부 {}", dto.getFilter());
+        log.info("In FilterDto - 가격 필터링 여부 {}", dto.getPriceFilter());
+        log.info("In FilterDto - 키로 수 필터링 여부 {}", dto.getMileageFilter());
+        log.info("In FilterDto - 모델명 {}", dto.getModel());
+        log.info("In FilterDto - 거래 상태 {}", dto.getStatus());
+        log.info("In FilterDto - 판매자 {}", dto.getAssignor());
+        log.info("In FilterDto - 등록일 {} ~ {}", dto.getPeriodRangeStart(), dto.getPeriodRangeEnd());
+        log.info("In FilterDto - 가격 {} ~ {}", dto.getPriceRangeStart(), dto.getPriceRangeEnd());
+        log.info("In FilterDto - 거리 {} ~ {}", dto.getMileageRangeStart(), dto.getMileageRangeEnd());
 
         return responseService.successDataResponse(contractControl.getContract(dto));
     }

@@ -19,5 +19,20 @@ public class TransactionDetailsDto {
     private String vehicleDeliveryDate;
     private String vehicleDeliveryAddress;
     private Integer mileage;
+
+    public String getString() {
+        String ret = "\n -- TransactionState - "+transactionState
+                    +"\n -- VehicleRegistrationNumber - "+vehicleRegistrationNumber
+                    +"\n -- NewVehicleRegistrationNumber - "+newVehicleRegistrationNumber
+                    +"\n -- VehicleModelName - "+vehicleModelName
+                    +"\n -- VehicleIdentificationNumber - "+vehicleIdentificationNumber
+                    +"\n -- TransactionDate - "+transactionDate
+                    +"\n -- TransactionAmount - "+transactionAmount
+                    +"\n -- BalancePaymentDate - "+balancePaymentDate
+                    +"\n -- VehicleDeliveryDate - "+ vehicleDeliveryDate
+                    +"\n -- VehicleDeliveryAddress - "+vehicleDeliveryAddress
+                    +"\n -- Mileage - "+mileage.toString();
+        return ret;
+    }
 }
 

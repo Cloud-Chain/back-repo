@@ -12,5 +12,13 @@ public class AssignDto {
     private String residentRegistrationNumber;
     private String phoneNumber;
     private String address;
+
+    public String getString() {
+        String ret = "\n -- Name - "+name
+                    +"\n -- ResidentRegistrationNumber - "+residentRegistrationNumber
+                    +"\n -- PhoneNumber - "+phoneNumber
+                    +"\n -- Address - "+address;
+        return  ret;
+    }
 }
 

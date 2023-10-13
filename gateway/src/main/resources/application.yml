@@ -49,6 +49,7 @@ spring:
           uri: http://localhost:8082
           predicates:
             - Path=/contract/get-contract
+            - Method= POST, OPTIONS
         - id: contract-service
           uri: http://localhost:8082
           predicates:

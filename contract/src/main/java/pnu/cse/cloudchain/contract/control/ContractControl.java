@@ -23,6 +23,7 @@ import pnu.cse.cloudchain.contract.dto.response.ContractResponseDto;
 import pnu.cse.cloudchain.contract.dto.response.ResponseCodeDto;
 import pnu.cse.cloudchain.contract.dto.response.ResponseDto;
 import pnu.cse.cloudchain.contract.dto.response.SuccessCodeDto;
+import pnu.cse.cloudchain.contract.entity.ContractDataEntity;
 import pnu.cse.cloudchain.contract.entity.ContractFeignEntity;
 import pnu.cse.cloudchain.contract.exception.CustomException;
 import pnu.cse.cloudchain.contract.exception.CustomExceptionStatus;
@@ -50,6 +51,7 @@ public class ContractControl {
     private final OpenstackKeyService openstackKeyService;
     private final OpenstackSwiftService openstackSwiftService;
     private final ContractFeignEntity contractFeignEntity;
+    private final ContractDataEntity contractDataEntity;
 
     @Transactional
     public ResponseDto<SuccessCodeDto> buy(ContractDto dto, String userid, String causer) {
@@ -91,21 +93,34 @@ public class ContractControl {
 
     @Transactional
     public ResponseDto<List<ContractResponseDto>> getContract(FilterDto dto) {
-        List<ContractDto> data = contractFeignEntity.getContract();
+        log.info("Received Get-Contract Api Contract Control.");
+        log.info("In FilterDto - 필터링 여부 {}", dto.getFilter());
+        log.info("In FilterDto - 가격 필터링 여부 {}", dto.getPriceFilter());
+        log.info("In FilterDto - 키로 수 필터링 여부 {}", dto.getMileageFilter());
+        log.info("In FilterDto - 모델명 {}", dto.getModel());
+        log.info("In FilterDto - 거래 상태 {}", dto.getStatus());
+        log.info("In FilterDto - 판매자 {}", dto.getAssignor());
+        log.info("In FilterDto - 등록일 {} ~ {}", dto.getPeriodRangeStart(), dto.getPeriodRangeEnd());
+        log.info("In FilterDto - 가격 {} ~ {}", dto.getPriceRangeStart(), dto.getPriceRangeEnd());
+        log.info("In FilterDto - 거리 {} ~ {}", dto.getMileageRangeStart(), dto.getMileageRangeEnd());
+        log.info("Request data query to Blockchain Entity");
+
+        List<ContractDto> data = contractDataEntity.getContract();
         List<ContractResponseDto> retData = new ArrayList<ContractResponseDto>();
-        log.info("Valid get Inspect Info");
+
         LocalDate date1 =  LocalDate.parse(dto.getPeriodRangeStart(), DateTimeFormatter.ISO_DATE);
         LocalDate date2 =  LocalDate.parse(dto.getPeriodRangeEnd(), DateTimeFormatter.ISO_DATE);
         if (data == null || data.size()==0)
             throw new CustomException(CustomExceptionStatus.CAR_NOT_FOUND, "404", "차량 정보가 존재하지 않습니다.");
-        log.info("{}   {}", dto.getMileageFilter(), dto.getPriceFilter());
-        log.info("{}  {}   {}", dto.getStatus(), dto.getPeriodRangeStart(), dto.getPeriodRangeEnd());
+        log.info("Receive data from Blockchain Entity Data Size {}",data.size());
+//        log.info("{}   {}", dto.getMileageFilter(), dto.getPriceFilter());
+//        log.info("{}  {}   {}", dto.getStatus(), dto.getPeriodRangeStart(), dto.getPeriodRangeEnd());
         if (dto.getFilter()) {
             for (int i=0; i<data.size(); i++) {
                 Boolean check = true;
                 ContractDto contract = data.get(i);
 
-                log.info("check {}  {}  ", i ,contract.getUploadDate().toString());
+//                log.info("check {}  {}  ", i ,contract.getUploadDate().toString());
 
 //                if (contract.getTransactionDetails().getTransactionState().equals("SoldOut"))
 //                    continue;
@@ -148,7 +163,7 @@ public class ContractControl {
                         contract.getTransactionDetails().getTransactionState(),
                         contract.getTransactionDetails().getVehicleIdentificationNumber());
                     retData.add(res);
-                    log.info("filter result {}", i);
+//                    log.info("filter result {}", i);
                 }
             }
         } else {
@@ -169,6 +184,8 @@ public class ContractControl {
                 retData.add(res);
             }
         }
+        log.info("After Filtering Data Size {}", retData.size());
+        log.info("Return Data {}", retData.toString());
 
         return ResponseDto.success("Purchase request successful", retData);
     }
