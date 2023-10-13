@@ -71,7 +71,7 @@ jobs:
       run: |
         git config --global user.email "GitHub Actions Bot@github.com"
         git config --global user.name "GitHub Actions Bot"
-        git add git-tag.yaml
+        git add image-tag.yaml
         git commit -m "update git tag"
         git pull origin cloudchain
         git push origin cloudchain
