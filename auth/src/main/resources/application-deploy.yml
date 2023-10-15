@@ -17,6 +17,13 @@ spring:
     url: jdbc:mysql://mysql-service:3306/cloudchain?serverTimezone=UTC&characterEncoding=UTF-8
     username: root
     password: password
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 200MB
+      max-request-size: 215MB
+
 
   jpa:
     show-sql: true
