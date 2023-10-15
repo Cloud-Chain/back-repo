@@ -59,7 +59,8 @@ public class ContractControl {
         httpHeaders.set("org","buyer");
         httpHeaders.set("userID",userid);
         httpHeaders.set("CA-User",causer);
-        log.info(dto.toString());
+        log.info(dto.getTransactionDetails().toString());
+        log.info(dto.getTransactionDetails().getString());
         contractFeignEntity.buy(dto, httpHeaders );
         log.info("Purchase request successful");
 

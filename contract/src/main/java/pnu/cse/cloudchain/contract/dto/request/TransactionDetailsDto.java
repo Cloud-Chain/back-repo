@@ -31,7 +31,7 @@ public class TransactionDetailsDto {
                     +"\n -- BalancePaymentDate - "+balancePaymentDate
                     +"\n -- VehicleDeliveryDate - "+ vehicleDeliveryDate
                     +"\n -- VehicleDeliveryAddress - "+vehicleDeliveryAddress
-                    +"\n -- Mileage - "+mileage.toString();
+                    +"\n -- Mileage - "+mileage;
         return ret;
     }
 }
