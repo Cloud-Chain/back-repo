@@ -2,31 +2,84 @@ name: cloudchainCI
 
 on:
   push:
-    branches: 
+    branches:
       - main
-  workflow_dispatch: 
-
+    paths:
+      - 'auth/**'
+      - 'carinfo/**'
+      - 'contract/**'
+      - 'gateway/**'
+      - 'review/**'
+  workflow_dispatch:
+  
 env:
   git_tag: ${{ github.sha }}
 
 jobs:
-  build_and_push:
+  detect-changes:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        service: [auth, carinfo, contract, gateway, review]
-
+    outputs:
+      services: ${{ steps.set-matrix.outputs.services }}
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-      - name: Get Changed Directories
-        id: get-changed-dir
+      - uses: dorny/paths-filter@v2.11.1
+        id: changes
+        with:
+          filters: |
+            auth:
+              - 'auth/**'
+            carinfo:
+              - 'carinfo/**'
+            contract:
+              - 'contract/**'
+            gateway:
+              - 'gateway/**'
+            review:
+              - 'review/**'
+
+      - id: set-matrix
         run: |
-          changed_folders=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '/.*' | awk 'BEGIN {FS="/"} {print $1}' | sort -u)
-          echo "Changed folders: $changed_folders"
-          echo "::set-output name=folders::$changed_folders"
-      
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            services="[\"auth\",\"carinfo\",\"contract\",\"gateway\",\"review\"]"
+            echo "::set-output name=services::$services"
+            echo "Services Output: $services"
+          else
+            services=()
+            if [ "${{ steps.changes.outputs.auth }}" == "true" ]; then
+              services+=("\"auth\"")
+            fi
+            if [ "${{ steps.changes.outputs.carinfo }}" == "true" ]; then
+              services+=("\"carinfo\"")
+            fi
+            if [ "${{ steps.changes.outputs.contract }}" == "true" ]; then
+              services+=("\"contract\"")
+            fi
+            if [ "${{ steps.changes.outputs.gateway }}" == "true" ]; then
+              services+=("\"gateway\"")
+            fi
+            if [ "${{ steps.changes.outputs.review }}" == "true" ]; then
+              services+=("\"review\"")
+            fi
+            json="[${services[*]}]"
+            json=${json// /, }
+            echo "::set-output name=services::$json"
+            echo "Services Output: $json"
+          fi
+
+
+  build_and_push:
+    needs: detect-changes
+    runs-on: ubuntu-latest
+    outputs:
+      changed_folders: ${{ needs.detect-changes.outputs.services }}
+    strategy:
+      fail-fast: false
+      matrix:
+        service: ${{ fromJson(needs.detect-changes.outputs.services) }}
+    steps:
+      - uses: actions/checkout@v2
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       
@@ -37,43 +90,37 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
       - name: Build and Push Docker Image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v2
         with:
           context: ./${{ matrix.service }}
           file: ./${{ matrix.service }}/Dockerfile
           push: true
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/cloudchain-${{ matrix.service }}:latest
-        if: github.event_name == 'workflow_dispatch' || contains(steps.get-changed-dir.outputs.folders, matrix.service)
 
   update-argocd-manifest:
     needs: build_and_push
-    runs-on: ubuntu-20.04
-    
-    defaults:
-      run:
-        working-directory: ./signup/
-
+    runs-on: ubuntu-latest
     steps:
-    - name: Checkout argocd-deploy branch
-      uses: actions/checkout@v3
-      with:
-        ref: cloudchain
-        token: ${{ secrets.CLOUDCHAIN_PRIVATE }}
+      - name: Checkout argocd-deploy branch
+        uses: actions/checkout@v3
+        with:
+          ref: argocd
+          token: ${{ secrets.CLOUDCHAIN_PRIVATE }}
 
-    - name: Change image-tag.yaml
-      run: |
-        cat <<EOF > image-tag.yaml
-        image:
-          tag: ${{ env.git_tag }}
-        EOF
-
-    - name: New git tag push
-      run: |
-        git config --global user.email "GitHub Actions Bot@github.com"
-        git config --global user.name "GitHub Actions Bot"
-        git add image-tag.yaml
-        git commit -m "update git tag"
-        git pull origin cloudchain
-        git push origin cloudchain
-
-      
+      - name: Update image-tag.yaml in Changed Folders
+        run: |
+          for folder in auth carinfo contract gateway review; do
+            if echo "${{ needs.build_and_push.outputs.changed_folders }}" | grep -w $folder; then
+              echo "Updating image-tag.yaml in $folder"
+              cat <<EOF > $folder/image-tag.yaml
+              image:
+                tag: ${{ env.git_tag }}
+          EOF
+              git add $folder/image-tag.yaml
+            fi
+          done
+          git config --global user.email "GitHub Actions Bot@github.com"
+          git config --global user.name "GitHub Actions Bot"
+          git commit -m "Update image-tag.yaml"
+          git pull origin argocd
+          git push origin argocd
